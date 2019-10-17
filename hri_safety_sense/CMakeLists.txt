@@ -1,63 +1,41 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(hri_safety_sense)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  sensor_msgs
-  hri_c_driver
-  hri_safety_sense_srvs
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp)
+find_package(rosidl_default_generators REQUIRED)
+find_package(sensor_msgs)
+find_package(std_msgs)
+
+## System dependencies are found with CMake's conventions
+find_package(Boost REQUIRED COMPONENTS system)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/EmergencyStop.srv"
+  "srv/KeyString.srv"
+  "srv/KeyValue.srv"
 )
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs hri_c_driver hri_safety_sense_srvs
-)
-
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+  include
+  ${Boost_INCLUDE_DIRS}
 )
 
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-add_executable(safe_remote_control src/main.cpp src/VscProcess.cpp src/JoystickHandler.cpp)
+add_executable(safe_remote_control src/main.cpp src/VscProcess.cpp src/VehicleInterface.c src/JoystickHandler.cpp src/SerialInterface.c)
+ament_target_dependencies(safe_remote_control rclcpp std_msgs sensor_msgs)
+target_link_libraries(safe_remote_control ${Boost_LIBRARIES})
 
-## Specify libraries to link a library or executable target against
-target_link_libraries(safe_remote_control
-  ${catkin_LIBRARIES}
-)
-
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executables and/or libraries for installation
 install(TARGETS safe_remote_control
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
+
+ament_package()
