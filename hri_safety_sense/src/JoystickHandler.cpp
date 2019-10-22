@@ -15,18 +15,19 @@
 /**
  * ROS Includes
  */
-#include "ros/ros.h"
-#include "sensor_msgs/Joy.h"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joy.hpp"
 
 #include "VehicleMessages.h"
 #include "JoystickHandler.h"
 
 using namespace hri_safety_sense;
 
-JoystickHandler::JoystickHandler()
+JoystickHandler::JoystickHandler(
+  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics)
 {
 	// Joystick Pub
-	rawLeftPub = rosNode.advertise<sensor_msgs::Joy>("/joy", 10);
+	rawLeftPub = nodeTopics->create_publisher<sensor_msgs::msg::Joy>("/joy", 10);
 }
 
 JoystickHandler::~JoystickHandler()
@@ -68,9 +69,9 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 		JoystickMsgType *joyMsg = (JoystickMsgType*)incomingMsg.msg.data;
 
 		// Broadcast Left Joystick
-		sensor_msgs::Joy sendLeftMsg;
+		sensor_msgs::msg::Joy sendLeftMsg;
 
-		sendLeftMsg.header.stamp = ros::Time::now();
+		sendLeftMsg.header.stamp = this->now();
 		sendLeftMsg.header.frame_id = "/srcs";
 
 		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftX));
@@ -96,7 +97,7 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 	} else {
 		retval = -1;
 
-		ROS_WARN("RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+		RCLCPP_WARN("RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
 				(unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.length);
 	}
 

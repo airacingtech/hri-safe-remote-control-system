@@ -15,9 +15,9 @@
 /**
  * ROS Includes
  */
-#include "ros/ros.h"
-#include "sensor_msgs/Joy.h"
-#include "std_msgs/UInt32.h"
+#include "rclcpp/rclcpp.h"
+#include "sensor_msgs/msg/joy.hpp"
+#include "std_msgs/msg/uint32.hpp"
 
 /**
  * System Includes
@@ -36,39 +36,42 @@
 #include "VehicleInterface.h"
 #include "VehicleMessages.h"
 
+using namespace std::placeholders;
 using namespace hri_safety_sense;
 
 VscProcess::VscProcess() :
-	myEStopState(0)
+	Node("VscProcess"), myEStopState(0)
 {
-	ros::NodeHandle nh("~");
 	std::string serialPort = "/dev/ttyACM0";
-	if(nh.getParam("serial", serialPort)) {
-		ROS_INFO("Serial Port updated to:  %s",serialPort.c_str());
+  serialPort = this->declare_parameter<std::string>("serial");
+  if(this->get_parameter<std::string>("serial", serialPort)) {
+		RCLCPP_INFO("Serial Port updated to:  %s",serialPort.c_str());
 	}
 
 	int  serialSpeed = 115200;
-	if(nh.getParam("serial_speed", serialSpeed)) {
-		ROS_INFO("Serial Port Speed updated to:  %i",serialSpeed);
+  serialSpeed = this->declare_parameter<int>("serial_speed");
+	if(this->get_parameter<int>("serial_speed", serialSpeed)) {
+		RCLCPP_INFO("Serial Port Speed updated to:  %i",serialSpeed);
 	}
 
 	/* Open VSC Interface */
 	vscInterface = vsc_initialize(serialPort.c_str(),serialSpeed);
 	if (vscInterface == NULL) {
-		ROS_FATAL("Cannot open serial port! (%s, %i)",serialPort.c_str(),serialSpeed);
+		RCLCPP_FATAL("Cannot open serial port! (%s, %i)",serialPort.c_str(),serialSpeed);
 	} else {
-		ROS_INFO("Connected to VSC on %s : %i",serialPort.c_str(),serialSpeed);
+		RCLCPP_INFO("Connected to VSC on %s : %i",serialPort.c_str(),serialSpeed);
 	}
 
 	// Attempt to Set priority
 	bool  set_priority = false;
-	if(nh.getParam("set_priority", set_priority)) {
-		ROS_INFO("Set priority updated to:  %i",set_priority);
+  set_priority = this->declare_parameter<bool>("set_priority");
+	if(this->get_parameter<bool>("set_priority", set_priority)) {
+		RCLCPP_INFO("Set priority updated to:  %i",set_priority);
 	}
 
 	if(set_priority) {
 		if(setpriority(PRIO_PROCESS, 0, -19) == -1) {
-			ROS_ERROR("UNABLE TO SET PRIORITY OF PROCESS! (%i, %s)",errno,strerror(errno));
+			RCLCPP_ERROR("UNABLE TO SET PRIORITY OF PROCESS! (%i, %s)",errno,strerror(errno));
 		}
 	}
 
@@ -76,20 +79,28 @@ VscProcess::VscProcess() :
 	joystickHandler = new JoystickHandler();
 
 	// EStop callback
-	estopServ = rosNode.advertiseService("safety/service/send_emergency_stop", &VscProcess::EmergencyStop, this);
+	estopServ = this->create_service<hri_safety_sense::EmergencyStop>(
+		"safety/service/send_emergency_stop", std::bind(&VscProcess::EmergencyStop,
+		this, _1, _2));
 
 	// KeyValue callbacks
-	keyValueServ = rosNode.advertiseService("safety/service/key_value", &VscProcess::KeyValue, this);
-	keyStringServ = rosNode.advertiseService("safety/service/key_string", &VscProcess::KeyString, this);
+	keyValueServ = this->create_service<hri_safety_sense::KeyValue>(
+		"safety/service/key_value", std::bind(&VscProcess::KeyValue, this, _1, _2));
+	keyStringServ = this->create_service<hri_safety_sense::KeyValue>(
+		"safety/service/key_string", std::bind(&VscProcess::KeyString, this, _1,
+		_2));
 
 	// Publish Emergency Stop Status
-	estopPub = rosNode.advertise<std_msgs::UInt32>("safety/emergency_stop", 10);
+	estopPub = this->create_publisher<std_msgs::msg::UInt32>(
+    "safety/emergency_stop", 10);
 
 	// Main Loop Timer Callback
-	mainLoopTimer = rosNode.createTimer(ros::Duration(1.0/VSC_INTERFACE_RATE), &VscProcess::processOneLoop, this);
+	mainLoopTimer = this->create_wall_timer(
+    rclcpp::Duration(1.0/VSC_INTERFACE_RATE),
+    std::bind(&VscProcess::processOneLoop, this));
 
 	// Init last time to now
-	lastDataRx = ros::Time::now();
+	lastDataRx = this->now();
 
 	// Clear all error counters
 	memset(&errorCounts, 0, sizeof(errorCounts));
@@ -107,7 +118,7 @@ bool VscProcess::EmergencyStop(EmergencyStop::Request  &req, EmergencyStop::Resp
 {
 	myEStopState = (uint32_t)req.EmergencyStop;
 
-	ROS_WARN("VscProcess::EmergencyStop: to 0x%x", myEStopState);
+	RCLCPP_WARN("VscProcess::EmergencyStop: to 0x%x", myEStopState);
 
 	return true;
 }
@@ -117,7 +128,7 @@ bool VscProcess::KeyValue(KeyValue::Request  &req, KeyValue::Response &res )
 	// Send heartbeat message to vehicle in every state
 	vsc_send_user_feedback(vscInterface, req.Key, req.Value);
 
-	ROS_INFO("VscProcess::KeyValue: 0x%x, 0x%x", req.Key, req.Value);
+	RCLCPP_INFO("VscProcess::KeyValue: 0x%x, 0x%x", req.Key, req.Value);
 
 	return true;
 }
@@ -127,13 +138,13 @@ bool VscProcess::KeyString(KeyString::Request  &req, KeyString::Response &res )
 	// Send heartbeat message to vehicle in every state
 	vsc_send_user_feedback_string(vscInterface, req.Key, req.Value.c_str());
 
-	ROS_INFO("VscProcess::KeyValue: 0x%x, %s", req.Key, req.Value.c_str());
+	RCLCPP_INFO("VscProcess::KeyValue: 0x%x, %s", req.Key, req.Value.c_str());
 
 	return true;
 }
 
 
-void VscProcess::processOneLoop(const ros::TimerEvent&)
+void VscProcess::processOneLoop()
 {
 	// Send heartbeat message to vehicle in every state
 	vsc_send_heartbeat(vscInterface, myEStopState);
@@ -147,21 +158,21 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 	int retVal = 0;
 
 	if(recvMsg.msg.length == sizeof(HeartbeatMsgType)) {
-		ROS_DEBUG("Received Heartbeat from VSC");
+		RCLCPP_DEBUG("Received Heartbeat from VSC");
 
 		HeartbeatMsgType *msgPtr = (HeartbeatMsgType*)recvMsg.msg.data;
 
 		// Publish E-STOP Values
-		std_msgs::UInt32 estopValue;
+		std_msgs::msg::UInt32 estopValue;
 		estopValue.data = msgPtr->EStopStatus;
 		estopPub.publish(estopValue);
 
 		if(msgPtr->EStopStatus > 0) {
-			ROS_WARN("Received ESTOP from the vehicle!!! 0x%x",msgPtr->EStopStatus);
+			RCLCPP_WARN("Received ESTOP from the vehicle!!! 0x%x",msgPtr->EStopStatus);
 		}
 
 	} else {
-		ROS_WARN("RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+		RCLCPP_WARN("RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
 				(unsigned int)sizeof(HeartbeatMsgType), recvMsg.msg.length);
 		retVal = 1;
 	}
@@ -179,13 +190,13 @@ void VscProcess::readFromVehicle()
 		switch (recvMsg.msg.msgType) {
 		case MSG_VSC_HEARTBEAT:
 			if(handleHeartbeatMsg(recvMsg) == 0) {
-				lastDataRx = ros::Time::now();
+				lastDataRx = this->now();
 			}
 
 			break;
 		case MSG_VSC_JOYSTICK:
 			if(joystickHandler->handleNewMsg(recvMsg) == 0) {
-				lastDataRx = ros::Time::now();
+				lastDataRx = this->now();
 			}
 
 			break;
@@ -200,15 +211,15 @@ void VscProcess::readFromVehicle()
 			break;
 		default:
 			errorCounts.invalidRxMsgCount++;
-			ROS_ERROR("Receive Error.  Invalid MsgType (0x%02X)",recvMsg.msg.msgType);
+			RCLCPP_ERROR("Receive Error.  Invalid MsgType (0x%02X)",recvMsg.msg.msgType);
 			break;
 		}
 	}
 
 	// Log warning when no data is received
-	ros::Duration noDataDuration = ros::Time::now() - lastDataRx;
-	if(noDataDuration > ros::Duration(.25)) {
-		ROS_WARN_THROTTLE(.5, "No Data Received in %i.%09i seconds", noDataDuration.sec, noDataDuration.nsec );
+	rclcpp::Duration noDataDuration = this->now() - lastDataRx;
+	if(noDataDuration > rclcpp::Duration(.25)) {
+		RCLCPP_WARN_THROTTLE(.5, "No Data Received in %i.%09i seconds", noDataDuration.sec, noDataDuration.nsec );
 	}
 
 }

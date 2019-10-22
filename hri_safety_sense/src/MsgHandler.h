@@ -18,7 +18,7 @@
 /**
  * Includes
  */
-#include "ros/ros.h"
+//#include "rclcpp/rclcpp.hpp"
 #include "VehicleMessages.h"
 
 namespace hri_safety_sense {
@@ -26,7 +26,7 @@ namespace hri_safety_sense {
 /**
  *
  */
-class MsgHandler {
+class MsgHandler /*: public rclcpp::Node*/ {
    public:
 	  virtual ~MsgHandler() {};
 

@@ -18,7 +18,7 @@
 /**
  * ROS Includes
  */
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.h"
 #include "hri_safety_sense/EmergencyStop.h"
 #include "hri_safety_sense/KeyValue.h"
 #include "hri_safety_sense/KeyString.h"
@@ -44,13 +44,13 @@ namespace hri_safety_sense {
 	const unsigned int VSC_INTERFACE_RATE = 50; /* 50 Hz */
 	const unsigned int VSC_HEARTBEAT_RATE = 20; /* 20 Hz */
 
-	class VscProcess {
+	class VscProcess : public rclcpp::Node {
 	   public:
 		  VscProcess();
 		  ~VscProcess();
 
 		  // Main loop
-		  void processOneLoop(const ros::TimerEvent&);
+		  void processOneLoop();
 
 		  // ROS Callback's
 		  bool EmergencyStop(EmergencyStop::Request &req, EmergencyStop::Response &res);
@@ -67,11 +67,11 @@ namespace hri_safety_sense {
 		  ErrorCounterType 		errorCounts;
 
 		  // ROS
-		  ros::NodeHandle 		rosNode;
-		  ros::Timer 	  		mainLoopTimer;
-		  ros::ServiceServer    estopServ, keyValueServ, keyStringServ;
-		  ros::Publisher		estopPub;
-		  ros::Time 			lastDataRx, lastTxTime;
+		  rclcpp::TimeBase::SharedPtr		mainLoopTimer;
+		  rclcpp::Service<hri_safety_sense::EmergencyStop>::SharedPtr    estopServ;
+      rclcpp::Service<hri_safety_sense::KeyValue>::SharedPtr		keyValueServ, keyStringServ;
+		  rclcpp::Publisher<std_msgs::msg::UInt32>		estopPub;
+		  rclcpp::Time 			lastDataRx, lastTxTime;
 
 		  // Message Handlers
 		  MsgHandler			*joystickHandler;

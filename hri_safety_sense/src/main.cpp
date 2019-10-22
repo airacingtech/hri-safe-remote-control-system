@@ -12,25 +12,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 #include "VscProcess.h"
-
-hri_safety_sense::VscProcess *VSCInterface;
 
 /**
  * VSC Vehicle Interface
  */
 int main(int argc, char **argv) {
-	ros::init(argc, argv, "VscProcess");
-
-	// Create vehicle interface
-	VSCInterface = new hri_safety_sense::VscProcess();
+	rclcpp::init(argc, argv);
 
 	// Allow ROS to handle timing and callbacks
-	ros::spin();
+	rclcpp::spin(std::make_shared<hri_safety_sense::VscProcess>());
 
-	// Application ending
-	delete VSCInterface;
+	rclcpp::shutdown();
 
 	return 0;
 }

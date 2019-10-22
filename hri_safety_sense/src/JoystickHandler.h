@@ -18,7 +18,7 @@
 /**
  * Includes
  */
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 
 #include "VehicleMessages.h"
 #include "MsgHandler.h"
@@ -30,7 +30,7 @@ namespace hri_safety_sense {
 	 */
 	class JoystickHandler : public MsgHandler {
 	   public:
-		  JoystickHandler();
+		  JoystickHandler(rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics);
 		  ~JoystickHandler();
 
 		  uint32_t handleNewMsg(const VscMsgType &incomingMsg);
@@ -40,8 +40,7 @@ namespace hri_safety_sense {
 		  int32_t getStickValue(JoystickType joystick);
 		  int32_t getButtonValue(uint8_t button);
 
-		  ros::NodeHandle 		rosNode;
-		  ros::Publisher 		rawLeftPub, rawRightPub;
+		  rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr 		rawLeftPub, rawRightPub;
 	};
 
 }
