@@ -30,7 +30,10 @@ namespace hri_safety_sense {
 	 */
 	class JoystickHandler : public MsgHandler {
 	   public:
-		  JoystickHandler(rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics);
+		  JoystickHandler(
+				rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics,
+				rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr &nodeLogger,
+				rclcpp::node_interfaces::NodeClockInterface::SharedPtr &nodeClock);
 		  ~JoystickHandler();
 
 		  uint32_t handleNewMsg(const VscMsgType &incomingMsg);
@@ -39,6 +42,9 @@ namespace hri_safety_sense {
 
 		  int32_t getStickValue(JoystickType joystick);
 		  int32_t getButtonValue(uint8_t button);
+
+			rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr	nodeLogger;
+			rclcpp::node_interfaces::NodeClockInterface::SharedPtr	nodeClock;
 
 		  rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr 		rawLeftPub, rawRightPub;
 	};

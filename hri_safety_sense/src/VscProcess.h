@@ -18,10 +18,11 @@
 /**
  * ROS Includes
  */
-#include "rclcpp/rclcpp.h"
-#include "hri_safety_sense/EmergencyStop.h"
-#include "hri_safety_sense/KeyValue.h"
-#include "hri_safety_sense/KeyString.h"
+#include "hri_safety_sense_msgs/srv/emergency_stop.hpp"
+#include "hri_safety_sense_msgs/srv/key_value.hpp"
+#include "hri_safety_sense_msgs/srv/key_string.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/u_int32.hpp"
 
 /**
  * HRI_COMMON Includes
@@ -53,9 +54,9 @@ namespace hri_safety_sense {
 		  void processOneLoop();
 
 		  // ROS Callback's
-		  bool EmergencyStop(EmergencyStop::Request &req, EmergencyStop::Response &res);
-		  bool KeyValue(KeyValue::Request &req, KeyValue::Response &res);
-		  bool KeyString(KeyString::Request &req, KeyString::Response &res);
+		  bool EmergencyStop(hri_safety_sense_msgs::srv::EmergencyStop::Request &req, hri_safety_sense_msgs::srv::EmergencyStop::Response &res);
+		  bool KeyValue(hri_safety_sense_msgs::srv::KeyValue::Request &req, hri_safety_sense_msgs::srv::KeyValue::Response &res);
+		  bool KeyString(hri_safety_sense_msgs::srv::KeyString::Request &req, hri_safety_sense_msgs::srv::KeyString::Response &res);
 
 	   private:
 
@@ -67,9 +68,9 @@ namespace hri_safety_sense {
 		  ErrorCounterType 		errorCounts;
 
 		  // ROS
-		  rclcpp::TimeBase::SharedPtr		mainLoopTimer;
-		  rclcpp::Service<hri_safety_sense::EmergencyStop>::SharedPtr    estopServ;
-      rclcpp::Service<hri_safety_sense::KeyValue>::SharedPtr		keyValueServ, keyStringServ;
+		  rclcpp::TimerBase::SharedPtr		mainLoopTimer;
+		  rclcpp::Service<hri_safety_sense_msgs::srv::EmergencyStop>::SharedPtr    estopServ;
+      rclcpp::Service<hri_safety_sense_msgs::srv::KeyValue>::SharedPtr		keyValueServ, keyStringServ;
 		  rclcpp::Publisher<std_msgs::msg::UInt32>		estopPub;
 		  rclcpp::Time 			lastDataRx, lastTxTime;
 

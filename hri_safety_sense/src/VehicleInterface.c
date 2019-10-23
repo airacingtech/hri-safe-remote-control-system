@@ -69,6 +69,7 @@ VscInterfaceType* vsc_initialize(const char *device, const unsigned int baud) {
 	printf("Opening serial port (%s,%i).\n", device, baud);
 	newVscInterface->fd = open_serial_interface(device, baud);
 	newVscInterface->front = newVscInterface->back = 0;
+  // TODO: Is this intentional comparison between uint32_t (fd) and -1?
 	if (newVscInterface->fd == -1) {
 		printf("Opening serial port (%s,%i) failed.\n", device, baud);
 		free(newVscInterface);
