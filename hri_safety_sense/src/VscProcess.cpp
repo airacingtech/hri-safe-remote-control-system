@@ -15,9 +15,8 @@
 /**
  * ROS Includes
  */
-#include "rclcpp/rclcpp.h"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joy.hpp"
-#include "std_msgs/msg/uint32.hpp"
 
 /**
  * System Includes
@@ -46,13 +45,13 @@ VscProcess::VscProcess() :
 	std::string serialPort = "/dev/ttyACM0";
   serialPort = this->declare_parameter<std::string>("serial");
   if(this->get_parameter<std::string>("serial", serialPort)) {
-		RCLCPP_INFO("Serial Port updated to:  %s",serialPort.c_str());
+		RCLCPP_INFO(this->get_logger(), "Serial Port updated to:  %s",serialPort.c_str());
 	}
 
 	int  serialSpeed = 115200;
   serialSpeed = this->declare_parameter<int>("serial_speed");
 	if(this->get_parameter<int>("serial_speed", serialSpeed)) {
-		RCLCPP_INFO("Serial Port Speed updated to:  %i",serialSpeed);
+		RCLCPP_INFO(this->get_logger(), "Serial Port Speed updated to:  %i",serialSpeed);
 	}
 
 	std::string frameId = "/srcs";
@@ -63,36 +62,37 @@ VscProcess::VscProcess() :
 	/* Open VSC Interface */
 	vscInterface = vsc_initialize(serialPort.c_str(),serialSpeed);
 	if (vscInterface == NULL) {
-		RCLCPP_FATAL("Cannot open serial port! (%s, %i)",serialPort.c_str(),serialSpeed);
+		RCLCPP_FATAL(this->get_logger(), "Cannot open serial port! (%s, %i)",serialPort.c_str(),serialSpeed);
 	} else {
-		RCLCPP_INFO("Connected to VSC on %s : %i",serialPort.c_str(),serialSpeed);
+		RCLCPP_INFO(this->get_logger(), "Connected to VSC on %s : %i",serialPort.c_str(),serialSpeed);
 	}
 
 	// Attempt to Set priority
 	bool  set_priority = false;
   set_priority = this->declare_parameter<bool>("set_priority");
 	if(this->get_parameter<bool>("set_priority", set_priority)) {
-		RCLCPP_INFO("Set priority updated to:  %i",set_priority);
+		RCLCPP_INFO(this->get_logger(), "Set priority updated to:  %i",set_priority);
 	}
 
 	if(set_priority) {
 		if(setpriority(PRIO_PROCESS, 0, -19) == -1) {
-			RCLCPP_ERROR("UNABLE TO SET PRIORITY OF PROCESS! (%i, %s)",errno,strerror(errno));
+			RCLCPP_ERROR(this->get_logger(), "UNABLE TO SET PRIORITY OF PROCESS! (%i, %s)",errno,strerror(errno));
 		}
 	}
 
 	// Create Message Handlers
-	joystickHandler = new JoystickHandler(frameId);
+	joystickHandler = new JoystickHandler(this->get_node_topics_interface(),
+    get_node_clock_interface());
 
 	// EStop callback
-	estopServ = this->create_service<hri_safety_sense::EmergencyStop>(
+	estopServ = this->create_service<hri_safety_sense::srv::EmergencyStop>(
 		"safety/service/send_emergency_stop", std::bind(&VscProcess::EmergencyStop,
 		this, _1, _2));
 
 	// KeyValue callbacks
-	keyValueServ = this->create_service<hri_safety_sense::KeyValue>(
+	keyValueServ = this->create_service<hri_safety_sense::srv::KeyValue>(
 		"safety/service/key_value", std::bind(&VscProcess::KeyValue, this, _1, _2));
-	keyStringServ = this->create_service<hri_safety_sense::KeyValue>(
+	keyStringServ = this->create_service<hri_safety_sense::srv::KeyValue>(
 		"safety/service/key_string", std::bind(&VscProcess::KeyString, this, _1,
 		_2));
 
@@ -124,7 +124,7 @@ bool VscProcess::EmergencyStop(EmergencyStop::Request  &req, EmergencyStop::Resp
 {
 	myEStopState = (uint32_t)req.EmergencyStop;
 
-	RCLCPP_WARN("VscProcess::EmergencyStop: to 0x%x", myEStopState);
+	RCLCPP_WARN(this->get_logger(), "VscProcess::EmergencyStop: to 0x%x", myEStopState);
 
 	return true;
 }
@@ -134,7 +134,7 @@ bool VscProcess::KeyValue(KeyValue::Request  &req, KeyValue::Response &res )
 	// Send heartbeat message to vehicle in every state
 	vsc_send_user_feedback(vscInterface, req.Key, req.Value);
 
-	RCLCPP_INFO("VscProcess::KeyValue: 0x%x, 0x%x", req.Key, req.Value);
+	RCLCPP_INFO(this->get_logger(), "VscProcess::KeyValue: 0x%x, 0x%x", req.Key, req.Value);
 
 	return true;
 }
@@ -144,7 +144,7 @@ bool VscProcess::KeyString(KeyString::Request  &req, KeyString::Response &res )
 	// Send heartbeat message to vehicle in every state
 	vsc_send_user_feedback_string(vscInterface, req.Key, req.Value.c_str());
 
-	RCLCPP_INFO("VscProcess::KeyValue: 0x%x, %s", req.Key, req.Value.c_str());
+	RCLCPP_INFO(this->get_logger(), "VscProcess::KeyValue: 0x%x, %s", req.Key, req.Value.c_str());
 
 	return true;
 }
@@ -164,7 +164,7 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 	int retVal = 0;
 
 	if(recvMsg.msg.length == sizeof(HeartbeatMsgType)) {
-		RCLCPP_DEBUG("Received Heartbeat from VSC");
+		RCLCPP_DEBUG(this->get_logger(), "Received Heartbeat from VSC");
 
 		HeartbeatMsgType *msgPtr = (HeartbeatMsgType*)recvMsg.msg.data;
 
@@ -174,11 +174,11 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 		estopPub.publish(estopValue);
 
 		if(msgPtr->EStopStatus > 0) {
-			RCLCPP_WARN("Received ESTOP from the vehicle!!! 0x%x",msgPtr->EStopStatus);
+			RCLCPP_WARN(this->get_logger(), "Received ESTOP from the vehicle!!! 0x%x",msgPtr->EStopStatus);
 		}
 
 	} else {
-		RCLCPP_WARN("RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+		RCLCPP_WARN(this->get_logger(), "RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
 				(unsigned int)sizeof(HeartbeatMsgType), recvMsg.msg.length);
 		retVal = 1;
 	}
@@ -217,7 +217,7 @@ void VscProcess::readFromVehicle()
 			break;
 		default:
 			errorCounts.invalidRxMsgCount++;
-			RCLCPP_ERROR("Receive Error.  Invalid MsgType (0x%02X)",recvMsg.msg.msgType);
+			RCLCPP_ERROR(this->get_logger(), "Receive Error.  Invalid MsgType (0x%02X)",recvMsg.msg.msgType);
 			break;
 		}
 	}
@@ -225,7 +225,7 @@ void VscProcess::readFromVehicle()
 	// Log warning when no data is received
 	rclcpp::Duration noDataDuration = this->now() - lastDataRx;
 	if(noDataDuration > rclcpp::Duration(.25)) {
-		RCLCPP_WARN_THROTTLE(.5, "No Data Received in %i.%09i seconds", noDataDuration.sec, noDataDuration.nsec );
+		RCLCPP_WARN_THROTTLE(this->get_logger(), .5, "No Data Received in %i.%09i seconds", noDataDuration.sec, noDataDuration.nsec );
 	}
 
 }

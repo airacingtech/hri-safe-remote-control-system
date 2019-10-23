@@ -9,19 +9,20 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(hri_safety_sense_msgs)
 find_package(rclcpp)
-find_package(rosidl_default_generators REQUIRED)
+#find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs)
 find_package(std_msgs)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/EmergencyStop.srv"
-  "srv/KeyString.srv"
-  "srv/KeyValue.srv"
-)
+#rosidl_generate_interfaces(${PROJECT_NAME}
+#  "srv/EmergencyStop.srv"
+#  "srv/KeyString.srv"
+#  "srv/KeyValue.srv"
+#)
 
 include_directories(
   include
@@ -29,13 +30,15 @@ include_directories(
 )
 
 add_executable(safe_remote_control src/main.cpp src/VscProcess.cpp src/VehicleInterface.c src/JoystickHandler.cpp src/SerialInterface.c)
-ament_target_dependencies(safe_remote_control rclcpp std_msgs sensor_msgs)
+ament_target_dependencies(safe_remote_control hri_safety_sense_msgs rclcpp sensor_msgs std_msgs)
 target_link_libraries(safe_remote_control ${Boost_LIBRARIES})
 
 install(TARGETS safe_remote_control
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  DESTINATION lib/${PROJECT_NAME}
+  #ARCHIVE DESTINATION lib
+  #LIBRARY DESTINATION lib
+  #RUNTIME DESTINATION bin
 )
 
+#ament_export_dependencies(rosidl_default_runtime)
 ament_package()

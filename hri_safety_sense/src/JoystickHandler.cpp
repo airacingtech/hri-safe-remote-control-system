@@ -23,19 +23,16 @@
 
 using namespace hri_safety_sense;
 
-<<<<<<< HEAD
-JoystickHandler::JoystickHandler(const std::string &frameId)
-{
-	// Joystick Pub
-	rawLeftPub = rosNode.advertise<sensor_msgs::Joy>("/joy", 10);
-	this->frameId = frameId;
-=======
 JoystickHandler::JoystickHandler(
-  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics)
+  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics,
+	rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr &nodeLogger,
+	rclcpp::node_interfaces::NodeClockInterface::SharedPtr &nodeClock)
 {
 	// Joystick Pub
 	rawLeftPub = nodeTopics->create_publisher<sensor_msgs::msg::Joy>("/joy", 10);
->>>>>>> first pass port to ROS 2
+
+	this->nodeLogger = nodeLogger;
+	this->nodeClock = nodeClock;
 }
 
 JoystickHandler::~JoystickHandler()
@@ -79,13 +76,8 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 		// Broadcast Left Joystick
 		sensor_msgs::msg::Joy sendLeftMsg;
 
-<<<<<<< HEAD
-		sendLeftMsg.header.stamp = ros::Time::now();
-		sendLeftMsg.header.frame_id = this->frameId;
-=======
-		sendLeftMsg.header.stamp = this->now();
+		sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
 		sendLeftMsg.header.frame_id = "/srcs";
->>>>>>> first pass port to ROS 2
 
 		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
 		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
@@ -105,12 +97,13 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.second));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.third));
 
-		rawLeftPub.publish(sendLeftMsg);
+		rawLeftPub->publish(sendLeftMsg);
 
 	} else {
 		retval = -1;
 
-		RCLCPP_WARN("RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+		RCLCPP_WARN(this->nodeLogger->get_logger(),
+				"RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
 				(unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.length);
 	}
 
