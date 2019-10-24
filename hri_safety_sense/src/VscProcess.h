@@ -18,9 +18,6 @@
 /**
  * ROS Includes
  */
-#include "hri_safety_sense_msgs/srv/emergency_stop.hpp"
-#include "hri_safety_sense_msgs/srv/key_value.hpp"
-#include "hri_safety_sense_msgs/srv/key_string.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/u_int32.hpp"
 
@@ -31,56 +28,67 @@
 #include "VehicleMessages.h"
 #include "VehicleInterface.h"
 
+#include "hri_safety_sense_msgs/srv/emergency_stop.hpp"
+#include "hri_safety_sense_msgs/srv/key_value.hpp"
+#include "hri_safety_sense_msgs/srv/key_string.hpp"
+
 namespace hri_safety_sense {
 
-	// Diagnostics
-	struct ErrorCounterType {
-		uint32_t sendErrorCount;
-		uint32_t invalidRxMsgCount;
-	};
+  // Diagnostics
+  struct ErrorCounterType {
+    uint32_t sendErrorCount;
+    uint32_t invalidRxMsgCount;
+  };
 
-	/**
-	 * Local Definitions
-	 */
-	const unsigned int VSC_INTERFACE_RATE = 50; /* 50 Hz */
-	const unsigned int VSC_HEARTBEAT_RATE = 20; /* 20 Hz */
+  /**
+   * Local Definitions
+   */
+  const unsigned int VSC_INTERFACE_RATE = 50; /* 50 Hz */
+  const unsigned int VSC_HEARTBEAT_RATE = 20; /* 20 Hz */
 
-	class VscProcess : public rclcpp::Node {
-	   public:
-		  VscProcess();
-		  ~VscProcess();
+  class VscProcess : public rclcpp::Node {
+     public:
+      VscProcess();
+      ~VscProcess();
 
-		  // Main loop
-		  void processOneLoop();
+      // Main loop
+      void processOneLoop();
 
-		  // ROS Callback's
-		  bool EmergencyStop(hri_safety_sense_msgs::srv::EmergencyStop::Request &req, hri_safety_sense_msgs::srv::EmergencyStop::Response &res);
-		  bool KeyValue(hri_safety_sense_msgs::srv::KeyValue::Request &req, hri_safety_sense_msgs::srv::KeyValue::Response &res);
-		  bool KeyString(hri_safety_sense_msgs::srv::KeyString::Request &req, hri_safety_sense_msgs::srv::KeyString::Response &res);
+      // ROS Callbacks
+      bool EmergencyStop(const std::shared_ptr<rmw_request_id_t> request_header,
+        const std::shared_ptr<hri_safety_sense_msgs::srv::EmergencyStop::Request> req,
+        const std::shared_ptr<hri_safety_sense_msgs::srv::EmergencyStop::Response> res);
+      bool KeyValue(const std::shared_ptr<rmw_request_id_t> request_header,
+        const std::shared_ptr<hri_safety_sense_msgs::srv::KeyValue::Request> req,
+        const std::shared_ptr<hri_safety_sense_msgs::srv::KeyValue::Response> res);
+      bool KeyString(const std::shared_ptr<rmw_request_id_t> request_header,
+        const std::shared_ptr<hri_safety_sense_msgs::srv::KeyString::Request> req,
+        const std::shared_ptr<hri_safety_sense_msgs::srv::KeyString::Response> res);
 
-	   private:
+     private:
 
-		  void readFromVehicle();
-		  int handleHeartbeatMsg(VscMsgType& recvMsg);
+      void readFromVehicle();
+      int handleHeartbeatMsg(VscMsgType& recvMsg);
 
-		  // Local State
-		  uint32_t 				myEStopState;
-		  ErrorCounterType 		errorCounts;
+      // Local State
+      uint32_t myEStopState;
+      ErrorCounterType errorCounts;
 
-		  // ROS
-		  rclcpp::TimerBase::SharedPtr		mainLoopTimer;
-		  rclcpp::Service<hri_safety_sense_msgs::srv::EmergencyStop>::SharedPtr    estopServ;
-      rclcpp::Service<hri_safety_sense_msgs::srv::KeyValue>::SharedPtr		keyValueServ, keyStringServ;
-		  rclcpp::Publisher<std_msgs::msg::UInt32>		estopPub;
-		  rclcpp::Time 			lastDataRx, lastTxTime;
+      // ROS
+      rclcpp::TimerBase::SharedPtr mainLoopTimer;
+      rclcpp::Service<hri_safety_sense_msgs::srv::EmergencyStop>::SharedPtr estopServ;
+      rclcpp::Service<hri_safety_sense_msgs::srv::KeyValue>::SharedPtr keyValueServ;
+      rclcpp::Service<hri_safety_sense_msgs::srv::KeyString>::SharedPtr keyStringServ;
+      rclcpp::Publisher<std_msgs::msg::UInt32>::SharedPtr estopPub;
+      rclcpp::Time lastDataRx, lastTxTime;
 
-		  // Message Handlers
-		  MsgHandler			*joystickHandler;
+      // Message Handlers
+      MsgHandler *joystickHandler;
 
-		  /* File descriptor for VSC Interface */
-		  VscInterfaceType		*vscInterface;
+      /* File descriptor for VSC Interface */
+      VscInterfaceType *vscInterface;
 
-	};
+  };
 
 } // namespace
 

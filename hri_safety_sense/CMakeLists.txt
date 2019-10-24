@@ -16,7 +16,7 @@ find_package(sensor_msgs)
 find_package(std_msgs)
 
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Boost REQUIRED COMPONENTS system)
 
 #rosidl_generate_interfaces(${PROJECT_NAME}
 #  "srv/EmergencyStop.srv"
@@ -26,12 +26,12 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 include_directories(
   include
-  ${Boost_INCLUDE_DIRS}
+  #${Boost_INCLUDE_DIRS}
 )
 
 add_executable(safe_remote_control src/main.cpp src/VscProcess.cpp src/VehicleInterface.c src/JoystickHandler.cpp src/SerialInterface.c)
 ament_target_dependencies(safe_remote_control hri_safety_sense_msgs rclcpp sensor_msgs std_msgs)
-target_link_libraries(safe_remote_control ${Boost_LIBRARIES})
+#target_link_libraries(safe_remote_control ${Boost_LIBRARIES})
 
 install(TARGETS safe_remote_control
   DESTINATION lib/${PROJECT_NAME}
