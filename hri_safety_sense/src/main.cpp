@@ -19,14 +19,14 @@
  * VSC Vehicle Interface
  */
 int main(int argc, char **argv) {
-	rclcpp::init(argc, argv);
+  rclcpp::init(argc, argv);
 
-	// Allow ROS to handle timing and callbacks
-	rclcpp::spin(std::make_shared<hri_safety_sense::VscProcess>());
+  // Allow ROS to handle timing and callbacks
+  rclcpp::spin(std::make_shared<hri_safety_sense::VscProcess>());
 
-	rclcpp::shutdown();
+  rclcpp::shutdown();
 
-	return 0;
+  return 0;
 }
 
 

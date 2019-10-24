@@ -25,29 +25,29 @@
 
 namespace hri_safety_sense {
 
-	/**
-	 *
-	 */
-	class JoystickHandler : public MsgHandler {
-	   public:
-		  JoystickHandler(
-				rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics,
-				rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr &nodeLogger,
-				rclcpp::node_interfaces::NodeClockInterface::SharedPtr &nodeClock);
-		  ~JoystickHandler();
+  /**
+   *
+   */
+  class JoystickHandler : public MsgHandler {
+     public:
+      JoystickHandler(
+        rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
+        rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
+        rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock);
+      ~JoystickHandler();
 
-		  uint32_t handleNewMsg(const VscMsgType &incomingMsg);
+      uint32_t handleNewMsg(const VscMsgType &incomingMsg);
 
-	   private:
+     private:
 
-		  float getStickValue(JoystickType joystick);
-		  int32_t getButtonValue(uint8_t button);
+      float getStickValue(JoystickType joystick);
+      int32_t getButtonValue(uint8_t button);
 
-			rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr	nodeLogger;
-			rclcpp::node_interfaces::NodeClockInterface::SharedPtr	nodeClock;
+      rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger;
+      rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock;
 
-		  rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr 		rawLeftPub, rawRightPub;
-	};
+      rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr rawLeftPub, rawRightPub;
+  };
 
 }
 

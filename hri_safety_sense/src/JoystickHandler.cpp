@@ -24,15 +24,16 @@
 using namespace hri_safety_sense;
 
 JoystickHandler::JoystickHandler(
-  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr &nodeTopics,
-	rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr &nodeLogger,
-	rclcpp::node_interfaces::NodeClockInterface::SharedPtr &nodeClock)
+  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
+  rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock)
 {
-	// Joystick Pub
-	rawLeftPub = nodeTopics->create_publisher<sensor_msgs::msg::Joy>("/joy", 10);
+  // Joystick Pub
+  rawLeftPub = rclcpp::create_publisher<sensor_msgs::msg::Joy>(nodeTopics,
+    "/joy", 10);
 
-	this->nodeLogger = nodeLogger;
-	this->nodeClock = nodeClock;
+  this->nodeLogger = nodeLogger;
+  this->nodeClock = nodeClock;
 }
 
 JoystickHandler::~JoystickHandler()
@@ -41,73 +42,73 @@ JoystickHandler::~JoystickHandler()
 
 float JoystickHandler::getStickValue(JoystickType joystick)
 {
-	int32_t magnitude = (joystick.magnitude<<2) + joystick.mag_lsb;
+  int32_t magnitude = (joystick.magnitude<<2) + joystick.mag_lsb;
 
-	if(joystick.neutral_status == STATUS_SET) {
-		return 0;
-	} else if(joystick.negative_status == STATUS_SET) {
-		return static_cast<float>(-1 * magnitude);
-	} else if(joystick.positive_status == STATUS_SET) {
-		return static_cast<float>(magnitude);
-	}
+  if(joystick.neutral_status == STATUS_SET) {
+    return 0;
+  } else if(joystick.negative_status == STATUS_SET) {
+    return static_cast<float>(-1 * magnitude);
+  } else if(joystick.positive_status == STATUS_SET) {
+    return static_cast<float>(magnitude);
+  }
 
-	// Error case
-	return 0;
+  // Error case
+  return 0;
 }
 
 int32_t JoystickHandler::getButtonValue(uint8_t button)
 {
-	if(button == STATUS_SET) {
-		return 1;
-	}
+  if(button == STATUS_SET) {
+    return 1;
+  }
 
-	// Error case
-	return 0;
+  // Error case
+  return 0;
 }
 
 uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 {
-	int retval = 0;
+  int retval = 0;
 
-	if(incomingMsg.msg.length == sizeof(JoystickMsgType)) {
+  if(incomingMsg.msg.length == sizeof(JoystickMsgType)) {
 
-		JoystickMsgType *joyMsg = (JoystickMsgType*)incomingMsg.msg.data;
+    JoystickMsgType *joyMsg = (JoystickMsgType*)incomingMsg.msg.data;
 
-		// Broadcast Left Joystick
-		sensor_msgs::msg::Joy sendLeftMsg;
+    // Broadcast Left Joystick
+    sensor_msgs::msg::Joy sendLeftMsg;
 
-		sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
-		sendLeftMsg.header.frame_id = "/srcs";
+    sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
+    sendLeftMsg.header.frame_id = "/srcs";
 
-		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftZ) / this->AXIS_MAX);
+    sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
+    sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
+    sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftZ) / this->AXIS_MAX);
 
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.home));
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.first));
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.second));
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.third));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.home));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.first));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.second));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.third));
 
-		sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightX) / this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightY) / this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightZ) / this->AXIS_MAX);
+    sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightX) / this->AXIS_MAX);
+    sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightY) / this->AXIS_MAX);
+    sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightZ) / this->AXIS_MAX);
 
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.home));
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.first));
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.second));
-		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.third));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.home));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.first));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.second));
+    sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.third));
 
-		rawLeftPub->publish(sendLeftMsg);
+    rawLeftPub->publish(sendLeftMsg);
 
-	} else {
-		retval = -1;
+  } else {
+    retval = -1;
 
-		RCLCPP_WARN(this->nodeLogger->get_logger(),
-				"RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
-				(unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.length);
-	}
+    RCLCPP_WARN(this->nodeLogger->get_logger(),
+        "RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+        (unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.length);
+  }
 
-	return retval;
+  return retval;
 }
 
 
