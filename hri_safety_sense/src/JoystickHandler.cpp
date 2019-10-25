@@ -70,9 +70,9 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 {
   int retval = 0;
 
-  if(incomingMsg.msg.length == sizeof(JoystickMsgType)) {
+  if(incomingMsg.msg.meta.length == sizeof(JoystickMsgType)) {
 
-    JoystickMsgType *joyMsg = (JoystickMsgType*)incomingMsg.msg.data;
+    JoystickMsgType *joyMsg = (JoystickMsgType*)incomingMsg.msg.meta.data;
 
     // Broadcast Left Joystick
     sensor_msgs::msg::Joy sendLeftMsg;
@@ -105,7 +105,7 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 
     RCLCPP_WARN(this->nodeLogger->get_logger(),
         "RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
-        (unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.length);
+        (unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.meta.length);
   }
 
   return retval;
