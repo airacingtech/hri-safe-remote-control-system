@@ -9,14 +9,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(hri_safety_sense_msgs)
+find_package(hri_safety_sense_interfaces)
 find_package(rclcpp)
 #find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs)
 find_package(std_msgs)
-
-## System dependencies are found with CMake's conventions
-#find_package(Boost REQUIRED COMPONENTS system)
 
 #rosidl_generate_interfaces(${PROJECT_NAME}
 #  "srv/EmergencyStop.srv"
@@ -26,7 +23,6 @@ find_package(std_msgs)
 
 include_directories(
   include
-  #${Boost_INCLUDE_DIRS}
 )
 
 add_executable(safe_remote_control
@@ -36,11 +32,10 @@ add_executable(safe_remote_control
   src/JoystickHandler.cpp
   src/SerialInterface.c)
 ament_target_dependencies(safe_remote_control
-  hri_safety_sense_msgs
+  hri_safety_sense_interfaces
   rclcpp
   sensor_msgs
   std_msgs)
-#target_link_libraries(safe_remote_control ${Boost_LIBRARIES})
 
 install(TARGETS safe_remote_control
   DESTINATION lib/${PROJECT_NAME}
