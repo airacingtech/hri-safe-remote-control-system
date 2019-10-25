@@ -48,7 +48,7 @@ namespace hri_safety_sense {
 
   class VscProcess : public rclcpp::Node {
      public:
-      VscProcess();
+      VscProcess(rclcpp::NodeOptions &node_options);
       ~VscProcess();
 
       // Main loop

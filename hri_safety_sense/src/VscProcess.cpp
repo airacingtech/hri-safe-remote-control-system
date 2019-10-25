@@ -50,47 +50,36 @@ namespace hri_safety_sense {
   } \
 }
 
-VscProcess::VscProcess() :
-  rclcpp::Node("VscProcess"), myEStopState(0)
+VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
+  rclcpp::Node("VscProcess", node_options), myEStopState(0)
 {
   std::string serialPort = "/dev/ttyACM0";
-  //serialPort = this->declare_parameter<rcl_interfaces::msg::ParameterType::PARAMETER_STRING>(
-  //  "serial", "/dev/ttyACM0");
-  this->declare_parameter("serial");
-  //if(this->get_parameter<rcl_interfaces::msg::ParameterType::PARAMETER_STRING>("serial",
-  //    serialPort)) {
-  if(this->get_parameter("serial", serialPort)) {
-    RCLCPP_INFO(this->get_logger(), "Serial Port updated to:  %s",serialPort.c_str());
-  }
+  this->declare_parameter<std::string>("serial", serialPort);
+  if (this->get_parameter_or<std::string>("serial", serialPort, serialPort))
+    RCLCPP_INFO(this->get_logger(), "Serial Port updated to:  %s", serialPort.c_str());
 
   int serialSpeed = 115200;
-  //serialSpeed = this->declare_parameter<rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER>(
-  //  "serial_speed", serialSpeed);
-  serialSpeed = this->declare_parameter("serial_speed").get<int>();
-  //if(this->get_parameter<rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER>(
-  //    "serial_speed", serialSpeed)) {
-  if(this->get_parameter("serial_speed", serialSpeed)) {
-    RCLCPP_INFO(this->get_logger(), "Serial Port Speed updated to:  %i",serialSpeed);
-  }
+  this->declare_parameter<int>("serial_speed", serialSpeed);
+  if (this->get_parameter_or<int>("serial_speed", serialSpeed, serialSpeed))
+    RCLCPP_INFO(this->get_logger(), "Serial Port Speed updated to:  %i", serialSpeed);
 
   /* Open VSC Interface */
-  vscInterface = vsc_initialize(serialPort.c_str(),serialSpeed);
+  vscInterface = vsc_initialize(serialPort.c_str(), serialSpeed);
   if (vscInterface == NULL) {
-    RCLCPP_FATAL(this->get_logger(), "Cannot open serial port! (%s, %i)",serialPort.c_str(),serialSpeed);
+    RCLCPP_FATAL(this->get_logger(), "Cannot open serial port! (%s, %i)", serialPort.c_str(), serialSpeed);
   } else {
-    RCLCPP_INFO(this->get_logger(), "Connected to VSC on %s : %i",serialPort.c_str(),serialSpeed);
+    RCLCPP_INFO(this->get_logger(), "Connected to VSC on %s : %i", serialPort.c_str(), serialSpeed);
   }
 
   // Attempt to Set priority
-  bool  set_priority = false;
-  set_priority = this->declare_parameter("set_priority").get<bool>();
-  if(this->get_parameter<bool>("set_priority", set_priority)) {
-    RCLCPP_INFO(this->get_logger(), "Set priority updated to:  %i",set_priority);
-  }
+  bool setPriority = false;
+  this->declare_parameter<bool>("set_priority", setPriority);
+  if (this->get_parameter_or<bool>("set_priority", setPriority, setPriority))
+    RCLCPP_INFO(this->get_logger(), "Set priority updated to:  %i", setPriority);
 
-  if(set_priority) {
+  if(setPriority) {
     if(setpriority(PRIO_PROCESS, 0, -19) == -1) {
-      RCLCPP_ERROR(this->get_logger(), "UNABLE TO SET PRIORITY OF PROCESS! (%i, %s)",errno,strerror(errno));
+      RCLCPP_ERROR(this->get_logger(), "UNABLE TO SET PRIORITY OF PROCESS! (%i, %s)", errno, strerror(errno));
     }
   }
 
@@ -192,7 +181,7 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
     estopPub->publish(estopValue);
 
     if(msgPtr->EStopStatus > 0) {
-      RCLCPP_WARN(this->get_logger(), "Received ESTOP from the vehicle!!! 0x%x",msgPtr->EStopStatus);
+      RCLCPP_WARN(this->get_logger(), "Received ESTOP from the vehicle!!! 0x%x", msgPtr->EStopStatus);
     }
 
   } else {
@@ -235,7 +224,7 @@ void VscProcess::readFromVehicle()
       break;
     default:
       errorCounts.invalidRxMsgCount++;
-      RCLCPP_ERROR(this->get_logger(), "Receive Error.  Invalid MsgType (0x%02X)",recvMsg.msg.msgType);
+      RCLCPP_ERROR(this->get_logger(), "Receive Error.  Invalid MsgType (0x%02X)", recvMsg.msg.msgType);
       break;
     }
   }

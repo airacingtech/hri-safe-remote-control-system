@@ -29,16 +29,23 @@ include_directories(
   #${Boost_INCLUDE_DIRS}
 )
 
-add_executable(safe_remote_control src/main.cpp src/VscProcess.cpp src/VehicleInterface.c src/JoystickHandler.cpp src/SerialInterface.c)
-ament_target_dependencies(safe_remote_control hri_safety_sense_msgs rclcpp sensor_msgs std_msgs)
+add_executable(safe_remote_control
+  src/main.cpp
+  src/VscProcess.cpp
+  src/VehicleInterface.c
+  src/JoystickHandler.cpp
+  src/SerialInterface.c)
+ament_target_dependencies(safe_remote_control
+  hri_safety_sense_msgs
+  rclcpp
+  sensor_msgs
+  std_msgs)
 #target_link_libraries(safe_remote_control ${Boost_LIBRARIES})
 
 install(TARGETS safe_remote_control
   DESTINATION lib/${PROJECT_NAME}
-  #ARCHIVE DESTINATION lib
-  #LIBRARY DESTINATION lib
-  #RUNTIME DESTINATION bin
 )
 
+ament_export_include_directories(include)
 #ament_export_dependencies(rosidl_default_runtime)
 ament_package()
