@@ -170,10 +170,10 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 {
   int retVal = 0;
 
-  if(recvMsg.msg.length == sizeof(HeartbeatMsgType)) {
+  if(recvMsg.msg.meta.length == sizeof(HeartbeatMsgType)) {
     RCLCPP_DEBUG(this->get_logger(), "Received Heartbeat from VSC");
 
-    HeartbeatMsgType *msgPtr = (HeartbeatMsgType*)recvMsg.msg.data;
+    HeartbeatMsgType *msgPtr = (HeartbeatMsgType*)recvMsg.msg.meta.data;
 
     // Publish E-STOP Values
     std_msgs::msg::UInt32 estopValue;
@@ -186,7 +186,7 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 
   } else {
     RCLCPP_WARN(this->get_logger(), "RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
-        (unsigned int)sizeof(HeartbeatMsgType), recvMsg.msg.length);
+        (unsigned int)sizeof(HeartbeatMsgType), recvMsg.msg.meta.length);
     retVal = 1;
   }
 
@@ -200,7 +200,7 @@ void VscProcess::readFromVehicle()
   /* Read all messages */
   while (vsc_read_next_msg(vscInterface, &recvMsg) > 0) {
     /* Read next Vsc Message */
-    switch (recvMsg.msg.msgType) {
+    switch (recvMsg.msg.meta.msgType) {
     case MSG_VSC_HEARTBEAT:
       if(handleHeartbeatMsg(recvMsg) == 0) {
         lastDataRx = this->now();
@@ -224,7 +224,7 @@ void VscProcess::readFromVehicle()
       break;
     default:
       errorCounts.invalidRxMsgCount++;
-      RCLCPP_ERROR(this->get_logger(), "Receive Error.  Invalid MsgType (0x%02X)", recvMsg.msg.msgType);
+      RCLCPP_ERROR(this->get_logger(), "Receive Error.  Invalid MsgType (0x%02X)", recvMsg.msg.meta.msgType);
       break;
     }
   }

@@ -103,7 +103,7 @@ typedef union {
 		uint8_t  msgType;
 		uint8_t  length;
 		uint8_t  data[VSC_MAX_MESSAGE_LENGTH];
-	};
+	} meta;
 } VscMsgData;
 
 /** VscMsgType
