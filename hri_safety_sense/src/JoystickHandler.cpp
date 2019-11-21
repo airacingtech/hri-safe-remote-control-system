@@ -82,18 +82,20 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
     sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
     sendLeftMsg.header.frame_id = this->frameId;
 
-    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftX));
-    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftY));
-    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftZ));
+    const float AXIS_MAX = 1023.;
+
+    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftX) / AXIS_MAX);
+    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftY) / AXIS_MAX);
+    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftZ) / AXIS_MAX);
 
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.home));
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.first));
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.second));
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.third));
 
-    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightX));
-    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightY));
-    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightZ));
+    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightX) / AXIS_MAX);
+    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightY) / AXIS_MAX);
+    sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightZ) / AXIS_MAX);
 
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.home));
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.first));
