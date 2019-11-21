@@ -40,7 +40,8 @@ buttons: [0, 0, 0, 0, 0, 0, 0, 0]
 ```
 
 `axes` fields are in this order for the 2 joysticks:
-Left X, Left Y, Left dead man, Right X, Right Y, Right dead man
+Left X, Left Y, Left Z, Right X, Right Y, Right Z
+Note that Z axis is on the back of the controller.
 
 `buttons` fields are in this order for the 8 buttons:
 Left down, Left right, Left up, Left left, Right down, Right right, Right up, Right left
