@@ -40,7 +40,7 @@ buttons: [0, 0, 0, 0, 0, 0, 0, 0]
 ```
 
 `axes` fields are in this order for the 2 joysticks:
-Left X, Left Y, 0, Right X, Right Y, 0
+Left X, Left Y, Left dead man, Right X, Right Y, Right dead man
 
 `buttons` fields are in this order for the 8 buttons:
 Left down, Left right, Left up, Left left, Right down, Right right, Right up, Right left
