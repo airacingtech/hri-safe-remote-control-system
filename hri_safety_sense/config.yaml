@@ -1,3 +1,4 @@
 VscProcess:
   ros__parameters:
     serial: /dev/ttyACM1
+    frame_id: /joystick
