@@ -33,7 +33,8 @@ namespace hri_safety_sense {
       JoystickHandler(
         rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
         rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
-        rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock);
+        rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
+        const std::string &frameId="/srcs");
       ~JoystickHandler();
 
       uint32_t handleNewMsg(const VscMsgType &incomingMsg);
@@ -47,6 +48,8 @@ namespace hri_safety_sense {
       rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock;
 
       rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr rawLeftPub, rawRightPub;
+
+      std::string frameId;
   };
 
 }

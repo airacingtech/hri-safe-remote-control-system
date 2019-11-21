@@ -26,7 +26,8 @@ using namespace hri_safety_sense;
 JoystickHandler::JoystickHandler(
   rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
   rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
-  rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock)
+  rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
+  const std::string &frameId)
 {
   // Joystick Pub
   rawLeftPub = rclcpp::create_publisher<sensor_msgs::msg::Joy>(nodeTopics,
@@ -34,6 +35,7 @@ JoystickHandler::JoystickHandler(
 
   this->nodeLogger = nodeLogger;
   this->nodeClock = nodeClock;
+  this->frameId = frameId;
 }
 
 JoystickHandler::~JoystickHandler()
@@ -78,7 +80,7 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
     sensor_msgs::msg::Joy sendLeftMsg;
 
     sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
-    sendLeftMsg.header.frame_id = "/srcs";
+    sendLeftMsg.header.frame_id = this->frameId;
 
     sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftX));
     sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftY));

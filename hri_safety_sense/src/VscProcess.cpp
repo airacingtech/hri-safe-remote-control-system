@@ -63,6 +63,11 @@ VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
   if (this->get_parameter_or<int>("serial_speed", serialSpeed, serialSpeed))
     RCLCPP_INFO(this->get_logger(), "Serial Port Speed updated to:  %i", serialSpeed);
 
+  std::string frameId = "/srcs";
+  this->declare_parameter<std::string>("frame_id", frameId);
+  if (this->get_parameter_or<std::string>("frame_id", frameId, frameId))
+    RCLCPP_INFO(this->get_logger(), "Frame ID updated to:  %s", frameId.c_str());
+
   /* Open VSC Interface */
   vscInterface = vsc_initialize(serialPort.c_str(), serialSpeed);
   if (vscInterface == NULL) {
@@ -85,7 +90,8 @@ VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
 
   // Create Message Handlers
   joystickHandler = new JoystickHandler(this->get_node_topics_interface(),
-    this->get_node_logging_interface(), this->get_node_clock_interface());
+    this->get_node_logging_interface(), this->get_node_clock_interface(),
+    frameId);
 
   // EStop callback
   estopServ = this->create_service<hri_safety_sense_interfaces::srv::EmergencyStop>(
