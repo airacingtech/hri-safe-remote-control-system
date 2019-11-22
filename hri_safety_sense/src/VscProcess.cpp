@@ -33,8 +33,8 @@
  */
 #include "VscProcess.h"
 #include "JoystickHandler.h"
-#include "VehicleInterface.h"
-#include "VehicleMessages.h"
+#include "hri_safety_sense/VehicleInterface.h"
+#include "hri_safety_sense/VehicleMessages.h"
 
 using namespace hri_safety_sense;
 

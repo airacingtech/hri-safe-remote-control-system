@@ -27,8 +27,8 @@
  * HRI_COMMON Includes
  */
 #include "MsgHandler.h"
-#include "VehicleMessages.h"
-#include "VehicleInterface.h"
+#include "hri_safety_sense/VehicleMessages.h"
+#include "hri_safety_sense/VehicleInterface.h"
 
 namespace hri_safety_sense {
 
