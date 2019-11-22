@@ -21,6 +21,7 @@ ros2 run hri_safety_sense safe_remote_control [__params:=config.yaml]
 `serial`: Serial port, `/dev/ttyACM0` by default
 `serial_speed`: Serial port speed, `115200` by default
 `set_priority`: Set priority, `false` by default
+`frame_id`: Frame ID, `/srcs` for Safe Remote Control System by default
 
 # ROS 2 topics:
 
