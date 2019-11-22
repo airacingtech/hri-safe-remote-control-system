@@ -23,10 +23,11 @@
 
 using namespace hri_safety_sense;
 
-JoystickHandler::JoystickHandler()
+JoystickHandler::JoystickHandler(const std::string &frameId)
 {
 	// Joystick Pub
 	rawLeftPub = rosNode.advertise<sensor_msgs::Joy>("/joy", 10);
+	this->frameId = frameId;
 }
 
 JoystickHandler::~JoystickHandler()
@@ -71,7 +72,7 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 		sensor_msgs::Joy sendLeftMsg;
 
 		sendLeftMsg.header.stamp = ros::Time::now();
-		sendLeftMsg.header.frame_id = "/srcs";
+		sendLeftMsg.header.frame_id = this->frameId;
 
 		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftX));
 		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftY));

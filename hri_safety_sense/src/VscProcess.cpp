@@ -52,6 +52,11 @@ VscProcess::VscProcess() :
 		ROS_INFO("Serial Port Speed updated to:  %i",serialSpeed);
 	}
 
+	std::string frameId = "/srcs";
+	if(nh.getParam("frame_id", frameId)) {
+		ROS_INFO("Frame ID updated to:  %s",frameId.c_str());
+	}
+
 	/* Open VSC Interface */
 	vscInterface = vsc_initialize(serialPort.c_str(),serialSpeed);
 	if (vscInterface == NULL) {
@@ -73,7 +78,7 @@ VscProcess::VscProcess() :
 	}
 
 	// Create Message Handlers
-	joystickHandler = new JoystickHandler();
+	joystickHandler = new JoystickHandler(frameId);
 
 	// EStop callback
 	estopServ = rosNode.advertiseService("safety/service/send_emergency_stop", &VscProcess::EmergencyStop, this);
