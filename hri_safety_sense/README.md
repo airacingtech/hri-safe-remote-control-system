@@ -42,12 +42,13 @@ rosrun hri_safety_sense safe_remote_control
 Example joystick message:
 ```
 $ rostopic echo /joy
-header:
-  stamp:
-    sec: 1574194053
-    nanosec: 406973681
-  frame_id: /joystick
-axes: [-1023.0, -296.0, 0.0, 0.0, 0.0, 0.0]
+header: 
+  seq: 892
+  stamp: 
+    secs: 1574381173
+    nsecs: 920995966
+  frame_id: "/joystick"
+axes: [-0.21114370226860046, -1.0, 0.0, 0.0, 0.0, 0.0]
 buttons: [0, 0, 0, 0, 0, 0, 0, 0]
 ```
 
