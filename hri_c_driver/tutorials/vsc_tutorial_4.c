@@ -38,8 +38,8 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
-#include "VehicleMessages.h"
-#include "VehicleInterface.h"
+#include "hri_c_driver/VehicleMessages.h"
+#include "hri_c_driver/VehicleInterface.h"
 
 /* File descriptor for VSC Interface */
 VscInterfaceType* vscInterface;
