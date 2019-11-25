@@ -50,6 +50,7 @@ namespace hri_safety_sense {
       rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr rawLeftPub, rawRightPub;
 
       std::string frameId;
+      const float AXIS_MAX = 1023.;
   };
 
 }
