@@ -44,6 +44,7 @@ namespace hri_safety_sense {
 		  ros::Publisher 		rawLeftPub, rawRightPub;
 
 		  std::string frameId;
+		  const float AXIS_MAX = 1023.;
 	};
 
 }
