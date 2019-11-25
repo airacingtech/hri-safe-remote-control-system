@@ -9,23 +9,14 @@ sudo chmod 666 <port>
 ```
 where port is for example `/dev/ttyACM1`.
 
-# Set port in ROS parameter if different from default:
-```
-rosparam set /VscProcess/serial <port>
-```
-where `/VscProcess` is the ROS node name.
-
-# Optionally, set frame ID of joystick message to a custom string:
-```
-rosparam set /VscProcess/frame_id /joystick
-```
-
 # To run driver:
 ```
 . devel/setup.bash
 roscore
-rosrun hri_safety_sense safe_remote_control
+roslaunch hri_safety_sense safe_remote_control.launch [serial:=/dev/ttyACM1 frame_id:=/joystick]
 ```
+
+Optionally pass in serial port and/or joystick frame ID, if different from default values in launch file.
 
 # ROS parameters:
 
