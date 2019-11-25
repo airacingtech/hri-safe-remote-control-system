@@ -1,6 +1,6 @@
 /***************************************************************************
  * Humanistic Robotics VSC Interface Library                               *
- * Version 1.0                                                             *
+ * Version 1.1                                                             *
  * Copyright 2013, Humanistic Robotics, Inc                                *
  ***************************************************************************/
 /*
@@ -25,9 +25,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#include "hri_safety_sense/VehicleMessages.h"
-#include "hri_safety_sense/VehicleInterface.h"
-#include "hri_safety_sense/SerialInterface.h"
+#include "hri_c_driver/VehicleMessages.h"
+#include "hri_c_driver/VehicleInterface.h"
+#include "hri_c_driver/SerialInterface.h"
 
 /**
  * Calculate the Fletcher 16 Checksum
@@ -66,11 +66,10 @@ static uint16_t checksum_16(uint8_t* data, int count) {
 VscInterfaceType* vsc_initialize(const char *device, const unsigned int baud) {
 	VscInterfaceType* newVscInterface = malloc(sizeof(VscInterfaceType));
 
-	printf("Opening serial port (%s,%i).\n", device, baud);
 	newVscInterface->fd = open_serial_interface(device, baud);
 	newVscInterface->front = newVscInterface->back = 0;
 	if (newVscInterface->fd == -1) {
-		printf("Opening serial port (%s,%i) failed.\n", device, baud);
+		fprintf(stderr,"Opening serial port (%s,%i) failed.\n", device, baud);
 		free(newVscInterface);
 		newVscInterface = NULL;
 	}

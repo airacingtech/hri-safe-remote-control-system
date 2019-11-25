@@ -20,6 +20,7 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>hri_c_driver</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -19,7 +19,7 @@
  * Includes
  */
 #include "ros/ros.h"
-#include "hri_safety_sense/VehicleMessages.h"
+#include "hri_c_driver/VehicleMessages.h"
 
 namespace hri_safety_sense {
 

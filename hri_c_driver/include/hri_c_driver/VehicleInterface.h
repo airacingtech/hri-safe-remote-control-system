@@ -31,7 +31,7 @@ extern "C" {
 typedef struct {
 	uint32_t front;
 	uint32_t back;
-	int32_t fd;
+	uint32_t fd;
 	uint8_t  recvbuffer[SIZE_RECEIVE_BUFFER];
 } VscInterfaceType;
 
