@@ -1,12 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>hri_safety_sense</name>
+  <name>hri_safety_sense_srvs</name>
   <version>1.0.0</version>
-  <description>
-
-      hri_safe_remote_system
-
-  </description>
+  <description>The hri_safety_sense_srvs package</description>
 
   <maintainer email="contact@fortrobotics.com">hri</maintainer>
   <license>BSD</license>
@@ -14,11 +10,11 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>roscpp</depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>hri_c_driver</depend>
-  <depend>hri_safety_sense_srvs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

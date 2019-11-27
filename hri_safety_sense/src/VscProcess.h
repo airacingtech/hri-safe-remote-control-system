@@ -19,9 +19,9 @@
  * ROS Includes
  */
 #include "ros/ros.h"
-#include "hri_safety_sense/EmergencyStop.h"
-#include "hri_safety_sense/KeyValue.h"
-#include "hri_safety_sense/KeyString.h"
+#include "hri_safety_sense_srvs/EmergencyStop.h"
+#include "hri_safety_sense_srvs/KeyValue.h"
+#include "hri_safety_sense_srvs/KeyString.h"
 
 /**
  * HRI_COMMON Includes
@@ -29,6 +29,8 @@
 #include "MsgHandler.h"
 #include "hri_c_driver/VehicleMessages.h"
 #include "hri_c_driver/VehicleInterface.h"
+
+using namespace hri_safety_sense_srvs;
 
 namespace hri_safety_sense {
 

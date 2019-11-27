@@ -37,6 +37,7 @@
 #include "hri_c_driver/VehicleMessages.h"
 
 using namespace hri_safety_sense;
+using namespace hri_safety_sense_srvs;
 
 VscProcess::VscProcess() :
 	myEStopState(0)
