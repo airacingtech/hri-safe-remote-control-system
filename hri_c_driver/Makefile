@@ -42,7 +42,3 @@ $(TARGET): $(OBJECTS)
 
 clean: 
 	rm $(OBJECTS) $(TARGET) $(TUTORIAL_SRC:.c=)
-
-
-
-

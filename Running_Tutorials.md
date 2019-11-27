@@ -1,5 +1,5 @@
 Tutorials Provided at: 
-####[Tutorials](/drivers/C/tutorials)
+####[Tutorials](hri_c_driver/tutorials)
 
 ####Tutorial Descriptions (Refer to Source for Details):
 * vsc_tutorial_1: A message of type UserHeartbeatMsgType containing the EStopStatus is sent at a rate of 20Hz to the VSC. This is a basic example where the joystick and button values can be seen as received by the VSC.

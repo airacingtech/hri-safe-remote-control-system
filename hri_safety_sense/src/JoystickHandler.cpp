@@ -74,24 +74,24 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 		sendLeftMsg.header.stamp = ros::Time::now();
 		sendLeftMsg.header.frame_id = this->frameId;
 
-		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftX) /
-      this->AXIS_MAX);
-		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftY) /
-      this->AXIS_MAX);
-		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->leftZ) /
-      this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->leftX)) /
+			this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->leftY)) /
+			this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->leftZ)) /
+			this->AXIS_MAX);
 
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.home));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.first));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.second));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.third));
 
-		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightX) /
-      this->AXIS_MAX);
-		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightY) /
-      this->AXIS_MAX);
-		sendLeftMsg.axes.push_back((float)getStickValue(joyMsg->rightZ) /
-      this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->rightX)) /
+			this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->rightY)) /
+			this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->rightZ)) /
+			this->AXIS_MAX);
 
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.home));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.first));
