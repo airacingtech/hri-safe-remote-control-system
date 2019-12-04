@@ -34,16 +34,16 @@ JoystickHandler::~JoystickHandler()
 {
 }
 
-int32_t JoystickHandler::getStickValue(JoystickType joystick)
+float JoystickHandler::getStickValue(JoystickType joystick)
 {
 	int32_t magnitude = (joystick.magnitude<<2) + joystick.mag_lsb;
 
 	if(joystick.neutral_status == STATUS_SET) {
 		return 0;
 	} else if(joystick.negative_status == STATUS_SET) {
-		return -1 * magnitude;
+		return static_cast<float>(-1 * magnitude);
 	} else if(joystick.positive_status == STATUS_SET) {
-		return magnitude;
+		return static_cast<float>(magnitude);
 	}
 
 	// Error case
@@ -74,24 +74,18 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 		sendLeftMsg.header.stamp = ros::Time::now();
 		sendLeftMsg.header.frame_id = this->frameId;
 
-		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->leftX)) /
-			this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->leftY)) /
-			this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->leftZ)) /
-			this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftZ) / this->AXIS_MAX);
 
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.home));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.first));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.second));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.third));
 
-		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->rightX)) /
-			this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->rightY)) /
-			this->AXIS_MAX);
-		sendLeftMsg.axes.push_back(float(getStickValue(joyMsg->rightZ)) /
-			this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightX) / this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightY) / this->AXIS_MAX);
+		sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightZ) / this->AXIS_MAX);
 
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.home));
 		sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.first));

@@ -30,14 +30,14 @@ namespace hri_safety_sense {
 	 */
 	class JoystickHandler : public MsgHandler {
 	   public:
-		  JoystickHandler(const std::string &frameId="/srcs");
+		  JoystickHandler(const std::string &frameId);
 		  ~JoystickHandler();
 
 		  uint32_t handleNewMsg(const VscMsgType &incomingMsg);
 
 	   private:
 
-		  int32_t getStickValue(JoystickType joystick);
+		  float getStickValue(JoystickType joystick);
 		  int32_t getButtonValue(uint8_t button);
 
 		  ros::NodeHandle 		rosNode;
