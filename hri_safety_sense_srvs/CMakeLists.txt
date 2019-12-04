@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(hri_safety_sense_interfaces)
+project(hri_safety_sense_srvs)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)

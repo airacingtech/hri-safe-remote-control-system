@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>hri_c_driver</name>
   <version>1.1.0</version>
   <description>
@@ -12,7 +12,7 @@
   <license>BSD</license>
   <author>hri</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <export>
   </export>

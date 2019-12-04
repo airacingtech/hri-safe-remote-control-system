@@ -9,30 +9,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(hri_safety_sense_interfaces)
+find_package(hri_c_driver)
+find_package(hri_safety_sense_srvs)
 find_package(rclcpp)
-#find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs)
 find_package(std_msgs)
-
-#rosidl_generate_interfaces(${PROJECT_NAME}
-#  "srv/EmergencyStop.srv"
-#  "srv/KeyString.srv"
-#  "srv/KeyValue.srv"
-#)
-
-include_directories(
-  include
-)
 
 add_executable(safe_remote_control
   src/main.cpp
   src/VscProcess.cpp
-  src/VehicleInterface.c
-  src/JoystickHandler.cpp
-  src/SerialInterface.c)
+  src/JoystickHandler.cpp)
 ament_target_dependencies(safe_remote_control
-  hri_safety_sense_interfaces
+  hri_c_driver
+  hri_safety_sense_srvs
   rclcpp
   sensor_msgs
   std_msgs)
@@ -41,6 +30,4 @@ install(TARGETS safe_remote_control
   DESTINATION lib/${PROJECT_NAME}
 )
 
-ament_export_include_directories(include)
-#ament_export_dependencies(rosidl_default_runtime)
 ament_package()

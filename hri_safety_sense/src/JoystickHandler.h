@@ -34,7 +34,7 @@ namespace hri_safety_sense {
         rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
         rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
         rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
-        const std::string &frameId)
+        const std::string &frameId);
       ~JoystickHandler();
 
       uint32_t handleNewMsg(const VscMsgType &incomingMsg);

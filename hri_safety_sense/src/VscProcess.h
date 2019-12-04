@@ -28,9 +28,9 @@
 #include "hri_c_driver/VehicleMessages.h"
 #include "hri_c_driver/VehicleInterface.h"
 
-#include "hri_safety_sense_interfaces/srv/emergency_stop.hpp"
-#include "hri_safety_sense_interfaces/srv/key_value.hpp"
-#include "hri_safety_sense_interfaces/srv/key_string.hpp"
+#include "hri_safety_sense_srvs/srv/emergency_stop.hpp"
+#include "hri_safety_sense_srvs/srv/key_value.hpp"
+#include "hri_safety_sense_srvs/srv/key_string.hpp"
 
 namespace hri_safety_sense {
 
@@ -56,14 +56,14 @@ namespace hri_safety_sense {
 
       // ROS Callbacks
       bool EmergencyStop(const std::shared_ptr<rmw_request_id_t> request_header,
-        const std::shared_ptr<hri_safety_sense_interfaces::srv::EmergencyStop::Request> req,
-        const std::shared_ptr<hri_safety_sense_interfaces::srv::EmergencyStop::Response> res);
+        const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Request> req,
+        const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Response> res);
       bool KeyValue(const std::shared_ptr<rmw_request_id_t> request_header,
-        const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyValue::Request> req,
-        const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyValue::Response> res);
+        const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Request> req,
+        const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Response> res);
       bool KeyString(const std::shared_ptr<rmw_request_id_t> request_header,
-        const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyString::Request> req,
-        const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyString::Response> res);
+        const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Request> req,
+        const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Response> res);
 
      private:
 
@@ -76,9 +76,9 @@ namespace hri_safety_sense {
 
       // ROS
       rclcpp::TimerBase::SharedPtr mainLoopTimer;
-      rclcpp::Service<hri_safety_sense_interfaces::srv::EmergencyStop>::SharedPtr estopServ;
-      rclcpp::Service<hri_safety_sense_interfaces::srv::KeyValue>::SharedPtr keyValueServ;
-      rclcpp::Service<hri_safety_sense_interfaces::srv::KeyString>::SharedPtr keyStringServ;
+      rclcpp::Service<hri_safety_sense_srvs::srv::EmergencyStop>::SharedPtr estopServ;
+      rclcpp::Service<hri_safety_sense_srvs::srv::KeyValue>::SharedPtr keyValueServ;
+      rclcpp::Service<hri_safety_sense_srvs::srv::KeyString>::SharedPtr keyStringServ;
       rclcpp::Publisher<std_msgs::msg::UInt32>::SharedPtr estopPub;
       rclcpp::Time lastDataRx, lastTxTime;
 

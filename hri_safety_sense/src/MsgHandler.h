@@ -18,14 +18,14 @@
 /**
  * Includes
  */
-#include "VehicleMessages.h"
+#include "hri_c_driver/VehicleMessages.h"
 
 namespace hri_safety_sense {
 
 /**
  *
  */
-class MsgHandler /*: public rclcpp::Node*/ {
+class MsgHandler {
    public:
 	  virtual ~MsgHandler() {};
 

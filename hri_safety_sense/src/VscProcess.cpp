@@ -94,14 +94,14 @@ VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
     frameId);
 
   // EStop callback
-  estopServ = this->create_service<hri_safety_sense_interfaces::srv::EmergencyStop>(
+  estopServ = this->create_service<hri_safety_sense_srvs::srv::EmergencyStop>(
     "safety/service/send_emergency_stop", std::bind(&VscProcess::EmergencyStop,
     this, _1, _2, _3));
 
   // KeyValue callbacks
-  keyValueServ = this->create_service<hri_safety_sense_interfaces::srv::KeyValue>(
+  keyValueServ = this->create_service<hri_safety_sense_srvs::srv::KeyValue>(
     "safety/service/key_value", std::bind(&VscProcess::KeyValue, this, _1, _2, _3));
-  keyStringServ = this->create_service<hri_safety_sense_interfaces::srv::KeyString>(
+  keyStringServ = this->create_service<hri_safety_sense_srvs::srv::KeyString>(
     "safety/service/key_string", std::bind(&VscProcess::KeyString, this, _1, _2, _3));
 
   // Publish Emergency Stop Status
@@ -129,8 +129,8 @@ VscProcess::~VscProcess()
 }
 
 bool VscProcess::EmergencyStop(const std::shared_ptr<rmw_request_id_t> /*request_header*/,
-  const std::shared_ptr<hri_safety_sense_interfaces::srv::EmergencyStop::Request> req,
-  const std::shared_ptr<hri_safety_sense_interfaces::srv::EmergencyStop::Response> /*res*/)
+  const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Request> req,
+  const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Response> /*res*/)
 {
   myEStopState = (uint32_t)req->emergency_stop;
 
@@ -140,8 +140,8 @@ bool VscProcess::EmergencyStop(const std::shared_ptr<rmw_request_id_t> /*request
 }
 
 bool VscProcess::KeyValue(const std::shared_ptr<rmw_request_id_t> /*request_header*/,
-  const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyValue::Request> req,
-  const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyValue::Response> /*res*/)
+  const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Request> req,
+  const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Response> /*res*/)
 {
   // Send heartbeat message to vehicle in every state
   vsc_send_user_feedback(vscInterface, req->key, req->value);
@@ -152,8 +152,8 @@ bool VscProcess::KeyValue(const std::shared_ptr<rmw_request_id_t> /*request_head
 }
 
 bool VscProcess::KeyString(const std::shared_ptr<rmw_request_id_t> /*request_header*/,
-  const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyString::Request> req,
-  const std::shared_ptr<hri_safety_sense_interfaces::srv::KeyString::Response> /*res*/)
+  const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Request> req,
+  const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Response> /*res*/)
 {
   // Send heartbeat message to vehicle in every state
   vsc_send_user_feedback_string(vscInterface, req->key, req->value.c_str());
