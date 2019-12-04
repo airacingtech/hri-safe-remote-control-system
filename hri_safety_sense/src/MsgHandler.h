@@ -25,7 +25,7 @@ namespace hri_safety_sense {
 /**
  *
  */
-class MsgHandler /*: public rclcpp::Node*/ {
+class MsgHandler {
    public:
 	  virtual ~MsgHandler() {};
 

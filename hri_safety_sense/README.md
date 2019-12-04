@@ -8,7 +8,7 @@ colcon build --packages-select hri_safety_sense
 ```
 sudo chmod 666 <port>
 ```
-Where port is for example `/dev/ttyACM1`.
+where port is for example `/dev/ttyACM1`.
 
 # To run driver:
 ```
