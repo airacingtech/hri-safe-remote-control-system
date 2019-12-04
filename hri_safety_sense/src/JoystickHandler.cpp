@@ -82,8 +82,6 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
     sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
     sendLeftMsg.header.frame_id = this->frameId;
 
-    const float AXIS_MAX = 1023.;
-
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftZ) / this->AXIS_MAX);

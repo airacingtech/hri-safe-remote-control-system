@@ -28,8 +28,6 @@
 #include "hri_c_driver/VehicleMessages.h"
 #include "hri_c_driver/VehicleInterface.h"
 
-using namespace hri_safety_sense_srvs;
-
 #include "hri_safety_sense_interfaces/srv/emergency_stop.hpp"
 #include "hri_safety_sense_interfaces/srv/key_value.hpp"
 #include "hri_safety_sense_interfaces/srv/key_string.hpp"
