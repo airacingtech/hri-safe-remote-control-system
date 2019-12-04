@@ -1,6 +1,6 @@
 # To compile ROS 2 driver:
 ```
-colcon build --packages-select hri_safety_sense_interfaces
+colcon build --packages-select hri_safety_sense_srvs
 colcon build --packages-select hri_safety_sense
 ```
 
