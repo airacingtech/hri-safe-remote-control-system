@@ -18,11 +18,11 @@
  */
 
 /***************************************************************************
- * VSC_TUTORIAL_4 - Value Display Mode Example with Motor Control
+ * VSC_TUTORIAL_3 - Text/Value Display Mode Example
  *
- *   The third tutorial shows how to switch the SRC into the user value display
- *   mode.  The example shows how to constantly update user feedback values and
- *   also send motor control commands to the SRC.
+ *   The third tutorial shows how to switch the SRC into the text/value display
+ *   mode.  The example shows how to constantly update user feedback values on
+ *   the SRC display.
  *
  ***************************************************************************/
 
@@ -38,8 +38,8 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
-#include "VehicleMessages.h"
-#include "VehicleInterface.h"
+#include "hri_c_driver/VehicleMessages.h"
+#include "hri_c_driver/VehicleInterface.h"
 
 /* File descriptor for VSC Interface */
 VscInterfaceType* vscInterface;
@@ -159,9 +159,10 @@ int main(int argc, char *argv[]) {
 	struct timespec lastSent, timeNow, lastReceived, timeDiff;
 	struct timeval timeout;
 	int max_fd, vsc_fd, retval;
-	int16_t testvalue;
+	int16_t testvalue, loopCount;
 	fd_set input;
 	testvalue = -1234;
+	loopCount = 1;
 
 	/* Verify Arguments */
 	if (argc != 3) {
@@ -194,10 +195,13 @@ int main(int argc, char *argv[]) {
 	vsc_send_heartbeat(vscInterface, ESTOP_STATUS_NOT_SET);
 
 	/* Send Display Mode to VSC */
-	vsc_send_user_feedback(vscInterface, VSC_USER_DISPLAY_MODE, DISPLAY_MODE_VALUES);
+	vsc_send_user_feedback(vscInterface, VSC_USER_DISPLAY_MODE, DISPLAY_MODE_TEXT_VALUE);
 
 	/* Send User String Values Once to VSC */
 	vsc_send_user_feedback_string(vscInterface, VSC_USER_FEEDBACK_KEY_1, "Counter");
+	vsc_send_user_feedback_string(vscInterface, VSC_USER_FEEDBACK_KEY_2, "Counter / 2");
+	vsc_send_user_feedback_string(vscInterface, VSC_USER_FEEDBACK_KEY_3, "Counter % 100");
+	vsc_send_user_feedback_string(vscInterface, VSC_USER_FEEDBACK_KEY_4, "Counter / 4");
 
 	/* Loop Forever */
 	while (1) {
@@ -213,12 +217,26 @@ int main(int argc, char *argv[]) {
 			vsc_send_heartbeat(vscInterface, ESTOP_STATUS_NOT_SET);
 
 			testvalue++;
-			if(testvalue % 1500 == 0) {
-				/* Send Motor Messages */
-				vsc_send_user_feedback(vscInterface, VSC_USER_BOTH_MOTOR_INTENSITY, MOTOR_CONTROL_INTENSITY_HIGH);
-			} else {
-				/* Send User Feedback Messages */
-				vsc_send_user_feedback(vscInterface, VSC_USER_FEEDBACK_KEY_1, testvalue);
+
+			loopCount++;
+			if(loopCount > VSC_USER_FEEDBACK_KEY_4) {
+				loopCount = VSC_USER_FEEDBACK_KEY_1;
+			}
+
+			/* Send User Feedback Messages based on loop counter */
+			switch(loopCount) {
+			case VSC_USER_FEEDBACK_KEY_1:
+				vsc_send_user_feedback(vscInterface, loopCount, testvalue);
+				break;
+			case VSC_USER_FEEDBACK_KEY_2:
+				vsc_send_user_feedback(vscInterface, loopCount, testvalue / 2);
+				break;
+			case VSC_USER_FEEDBACK_KEY_3:
+				vsc_send_user_feedback(vscInterface, loopCount, testvalue % 100);
+				break;
+			case VSC_USER_FEEDBACK_KEY_4:
+				vsc_send_user_feedback(vscInterface, loopCount, testvalue / 4);
+				break;
 			}
 		}
 

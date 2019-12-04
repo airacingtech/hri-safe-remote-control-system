@@ -25,9 +25,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#include "VehicleMessages.h"
-#include "VehicleInterface.h"
-#include "SerialInterface.h"
+#include "hri_c_driver/VehicleMessages.h"
+#include "hri_c_driver/VehicleInterface.h"
+#include "hri_c_driver/SerialInterface.h"
 
 /**
  * Calculate the Fletcher 16 Checksum

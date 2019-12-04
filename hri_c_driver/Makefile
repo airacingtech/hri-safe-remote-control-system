@@ -25,7 +25,7 @@ VERSION = 1.1
 
 TARGET  = lib/hri_vsc_interface.$(VERSION).so
 SOURCES = $(shell echo src/*.c)
-HEADERS = $(shell echo include/*.h)
+HEADERS = $(shell echo include/hri_c_driver/*.h)
 OBJECTS = $(SOURCES:.c=.o)
 TUTORIAL_SRC =  $(shell echo tutorials/*.c) 
 
@@ -42,7 +42,3 @@ $(TARGET): $(OBJECTS)
 
 clean: 
 	rm $(OBJECTS) $(TARGET) $(TUTORIAL_SRC:.c=)
-
-
-
-

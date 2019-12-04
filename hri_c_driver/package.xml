@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>hri_c_driver</name>
+  <version>1.1.0</version>
+  <description>
+
+      hri_c_driver
+
+  </description>
+
+  <maintainer email="contact@fortrobotics.com">hri</maintainer>
+  <license>BSD</license>
+  <author>hri</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>

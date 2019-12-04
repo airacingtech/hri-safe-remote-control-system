@@ -1,6 +1,6 @@
 /***************************************************************************
  * Humanistic Robotics VSC Interface Library                               *
- * Version 1.0                                                             *
+ * Version 1.1                                                             *
  * Copyright 2013, Humanistic Robotics, Inc                                *
  ***************************************************************************/
 /*
@@ -24,7 +24,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include "SerialInterface.h"
+#include "hri_c_driver/SerialInterface.h"
 
 /**
  * Open a serial port

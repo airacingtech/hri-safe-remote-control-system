@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="serial" default="/dev/ttyACM1" />
+  <arg name="frame_id" default="/joystick" />
+
+  <node pkg="hri_safety_sense" type="safe_remote_control" name="safe_remote_control">
+    <param name="serial" value="$(arg serial)" />
+    <param name="frame_id" value="$(arg frame_id)" />
+  </node>
+
+</launch>

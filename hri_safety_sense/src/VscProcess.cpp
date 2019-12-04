@@ -33,10 +33,11 @@
  */
 #include "VscProcess.h"
 #include "JoystickHandler.h"
-#include "VehicleInterface.h"
-#include "VehicleMessages.h"
+#include "hri_c_driver/VehicleInterface.h"
+#include "hri_c_driver/VehicleMessages.h"
 
 using namespace hri_safety_sense;
+using namespace hri_safety_sense_srvs;
 
 VscProcess::VscProcess() :
 	myEStopState(0)
@@ -50,6 +51,11 @@ VscProcess::VscProcess() :
 	int  serialSpeed = 115200;
 	if(nh.getParam("serial_speed", serialSpeed)) {
 		ROS_INFO("Serial Port Speed updated to:  %i",serialSpeed);
+	}
+
+	std::string frameId = "/srcs";
+	if(nh.getParam("frame_id", frameId)) {
+		ROS_INFO("Frame ID updated to:  %s",frameId.c_str());
 	}
 
 	/* Open VSC Interface */
@@ -73,7 +79,7 @@ VscProcess::VscProcess() :
 	}
 
 	// Create Message Handlers
-	joystickHandler = new JoystickHandler();
+	joystickHandler = new JoystickHandler(frameId);
 
 	// EStop callback
 	estopServ = rosNode.advertiseService("safety/service/send_emergency_stop", &VscProcess::EmergencyStop, this);
