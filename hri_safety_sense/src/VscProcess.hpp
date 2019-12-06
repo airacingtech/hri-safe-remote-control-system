@@ -24,7 +24,7 @@
 /**
  * HRI_COMMON Includes
  */
-#include "MsgHandler.h"
+#include "MsgHandler.hpp"
 #include "hri_c_driver/VehicleMessages.h"
 #include "hri_c_driver/VehicleInterface.h"
 
@@ -46,10 +46,13 @@ namespace hri_safety_sense {
   const unsigned int VSC_INTERFACE_RATE = 50; /* 50 Hz */
   const unsigned int VSC_HEARTBEAT_RATE = 20; /* 20 Hz */
 
-  class VscProcess : public rclcpp::Node {
+  class VscProcess final : public rclcpp::Node {
      public:
+
       VscProcess(rclcpp::NodeOptions &node_options);
-      ~VscProcess();
+      ~VscProcess() override;
+
+     private:
 
       // Main loop
       void processOneLoop();
@@ -64,8 +67,6 @@ namespace hri_safety_sense {
       bool KeyString(const std::shared_ptr<rmw_request_id_t> request_header,
         const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Request> req,
         const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Response> res);
-
-     private:
 
       void readFromVehicle();
       int handleHeartbeatMsg(VscMsgType& recvMsg);
@@ -91,6 +92,5 @@ namespace hri_safety_sense {
   };
 
 } // namespace
-
 
 #endif

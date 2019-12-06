@@ -1,7 +1,6 @@
 # To compile ROS 2 driver:
 ```
-colcon build --packages-select hri_safety_sense_srvs
-colcon build --packages-select hri_safety_sense
+colcon build --packages-select hri_c_driver hri_safety_sense_srvs hri_safety_sense
 ```
 
 # To read from joystick, modify permissions to port:
@@ -36,7 +35,7 @@ header:
     sec: 1574194053
     nanosec: 406973681
   frame_id: /srcs
-axes: [-1023.0, -296.0, 0.0, 0.0, 0.0, 0.0]
+axes: [-0.21114370226860046, -1.0, 0.0, 0.0, 0.0, 0.0]
 buttons: [0, 0, 0, 0, 0, 0, 0, 0]
 ```
 

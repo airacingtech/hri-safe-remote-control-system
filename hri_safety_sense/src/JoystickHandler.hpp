@@ -21,7 +21,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "hri_c_driver/VehicleMessages.h"
-#include "MsgHandler.h"
+#include "MsgHandler.hpp"
 
 namespace hri_safety_sense {
 
