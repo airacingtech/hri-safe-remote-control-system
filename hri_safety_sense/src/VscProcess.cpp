@@ -24,10 +24,12 @@
  */
 #include <chrono>
 #include <errno.h>
+#include <exception>
 #include <functional>
 #include <string.h>
 #include <math.h>
 #include <memory>
+#include <system_error>
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -51,41 +53,39 @@ namespace hri_safety_sense {
   } \
 }
 
-hri_safety_sense::VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
+VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   rclcpp::Node("VscProcess", node_options), myEStopState(0)
 {
   std::string serialPort = "/dev/ttyACM0";
-  this->declare_parameter<std::string>("serial", serialPort);
-  if (this->get_parameter_or<std::string>("serial", serialPort, serialPort))
-    RCLCPP_INFO(this->get_logger(), "Serial Port updated to:  %s", serialPort.c_str());
+  serialPort = this->declare_parameter<std::string>("serial", serialPort);
+  RCLCPP_INFO(this->get_logger(), "Serial Port set to:  %s", serialPort.c_str());
 
   int serialSpeed = 115200;
-  this->declare_parameter<int>("serial_speed", serialSpeed);
-  if (this->get_parameter_or<int>("serial_speed", serialSpeed, serialSpeed))
-    RCLCPP_INFO(this->get_logger(), "Serial Port Speed updated to:  %i", serialSpeed);
+  serialSpeed = this->declare_parameter<int>("serial_speed", serialSpeed);
+  RCLCPP_INFO(this->get_logger(), "Serial Port Speed set to:  %i", serialSpeed);
 
   std::string frameId = "/srcs";
-  this->declare_parameter<std::string>("frame_id", frameId);
-  if (this->get_parameter_or<std::string>("frame_id", frameId, frameId))
-    RCLCPP_INFO(this->get_logger(), "Frame ID updated to:  %s", frameId.c_str());
+  frameId = this->declare_parameter<std::string>("frame_id", frameId);
+  RCLCPP_INFO(this->get_logger(), "Frame ID set to:  %s", frameId.c_str());
 
   /* Open VSC Interface */
   vscInterface = vsc_initialize(serialPort.c_str(), serialSpeed);
   if (vscInterface == NULL) {
     RCLCPP_FATAL(this->get_logger(), "Cannot open serial port! (%s, %i)", serialPort.c_str(), serialSpeed);
+    throw std::system_error(std::make_error_code(std::errc::io_error), "Cannot open serial port");
   } else {
     RCLCPP_INFO(this->get_logger(), "Connected to VSC on %s : %i", serialPort.c_str(), serialSpeed);
   }
 
   // Attempt to Set priority
   bool setPriority = false;
-  this->declare_parameter<bool>("set_priority", setPriority);
-  if (this->get_parameter_or<bool>("set_priority", setPriority, setPriority))
-    RCLCPP_INFO(this->get_logger(), "Set priority updated to:  %i", setPriority);
+  setPriority = this->declare_parameter<bool>("set_priority", setPriority);
+  RCLCPP_INFO(this->get_logger(), "Set priority:  %i", setPriority);
 
   if (setPriority) {
     if (setpriority(PRIO_PROCESS, 0, -19) == -1) {
       RCLCPP_ERROR(this->get_logger(), "Unable to set priority of process! (%i, %s)", errno, strerror(errno));
+      throw std::system_error(errno, std::system_category(), strerror(errno));
     }
   }
 
@@ -96,18 +96,15 @@ hri_safety_sense::VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
 
   // EStop callback
   estopServ = this->create_service<hri_safety_sense_srvs::srv::EmergencyStop>(
-    "safety/service/send_emergency_stop", std::bind(
-    &hri_safety_sense::VscProcess::EmergencyStop,
+    "safety/service/send_emergency_stop", std::bind(&VscProcess::EmergencyStop,
     this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   // KeyValue callbacks
   keyValueServ = this->create_service<hri_safety_sense_srvs::srv::KeyValue>(
-    "safety/service/key_value", std::bind(
-    &hri_safety_sense::VscProcess::KeyValue, this,
+    "safety/service/key_value", std::bind(&VscProcess::KeyValue, this,
     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   keyStringServ = this->create_service<hri_safety_sense_srvs::srv::KeyString>(
-    "safety/service/key_string", std::bind(
-    &hri_safety_sense::VscProcess::KeyString, this,
+    "safety/service/key_string", std::bind(&VscProcess::KeyString, this,
     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   // Publish Emergency Stop Status
@@ -117,7 +114,7 @@ hri_safety_sense::VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
   // Main Loop Timer Callback
   mainLoopTimer = this->create_wall_timer(
     rclcpp::Duration(1.0 / VSC_INTERFACE_RATE * 10e9).to_chrono<std::chrono::nanoseconds>(),
-    std::bind(&hri_safety_sense::VscProcess::processOneLoop, this));
+    std::bind(&VscProcess::processOneLoop, this));
 
   // Init last time to now
   lastDataRx = this->now();
@@ -126,7 +123,7 @@ hri_safety_sense::VscProcess::VscProcess(rclcpp::NodeOptions &node_options) :
   memset(&errorCounts, 0, sizeof(errorCounts));
 }
 
-hri_safety_sense::VscProcess::~VscProcess()
+VscProcess::~VscProcess()
 {
   // Destroy vscInterface
   vsc_cleanup(vscInterface);
@@ -134,7 +131,7 @@ hri_safety_sense::VscProcess::~VscProcess()
   if(joystickHandler) delete joystickHandler;
 }
 
-bool hri_safety_sense::VscProcess::EmergencyStop(
+bool VscProcess::EmergencyStop(
   const std::shared_ptr<rmw_request_id_t> /*request_header*/,
   const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Request> req,
   const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Response> /*res*/)
@@ -146,7 +143,7 @@ bool hri_safety_sense::VscProcess::EmergencyStop(
   return true;
 }
 
-bool hri_safety_sense::VscProcess::KeyValue(
+bool VscProcess::KeyValue(
   const std::shared_ptr<rmw_request_id_t> /*request_header*/,
   const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Request> req,
   const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Response> /*res*/)
@@ -159,7 +156,7 @@ bool hri_safety_sense::VscProcess::KeyValue(
   return true;
 }
 
-bool hri_safety_sense::VscProcess::KeyString(
+bool VscProcess::KeyString(
   const std::shared_ptr<rmw_request_id_t> /*request_header*/,
   const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Request> req,
   const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Response> /*res*/)
@@ -172,7 +169,7 @@ bool hri_safety_sense::VscProcess::KeyString(
   return true;
 }
 
-void hri_safety_sense::VscProcess::processOneLoop()
+void VscProcess::processOneLoop()
 {
   // Send heartbeat message to vehicle in every state
   vsc_send_heartbeat(vscInterface, myEStopState);
@@ -181,7 +178,7 @@ void hri_safety_sense::VscProcess::processOneLoop()
   readFromVehicle();
 }
 
-int hri_safety_sense::VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
+int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 {
   int retVal = 0;
 
@@ -208,7 +205,7 @@ int hri_safety_sense::VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
   return retVal;
 }
 
-void hri_safety_sense::VscProcess::readFromVehicle()
+void VscProcess::readFromVehicle()
 {
   VscMsgType recvMsg;
 

@@ -22,7 +22,6 @@ int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
 
   rclcpp::NodeOptions node_options;
-  node_options.allow_undeclared_parameters(true);
 
   // Allow ROS to handle timing and callbacks
   rclcpp::spin(std::make_shared<hri_safety_sense::VscProcess>(node_options));

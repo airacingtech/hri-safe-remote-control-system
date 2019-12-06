@@ -47,12 +47,17 @@ namespace hri_safety_sense {
   const unsigned int VSC_HEARTBEAT_RATE = 20; /* 20 Hz */
 
   class VscProcess final : public rclcpp::Node {
-     public:
+    public:
 
-      VscProcess(rclcpp::NodeOptions &node_options);
+      explicit VscProcess(const rclcpp::NodeOptions &node_options);
+      VscProcess(VscProcess &&c) = delete;
+      VscProcess &operator=(VscProcess &&c) = delete;
+      VscProcess(const VscProcess &c) = delete;
+      VscProcess &operator=(const VscProcess &c) = delete;
+
       ~VscProcess() override;
 
-     private:
+    private:
 
       // Main loop
       void processOneLoop();
