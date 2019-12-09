@@ -86,7 +86,7 @@ namespace hri_safety_sense {
       rclcpp::Service<hri_safety_sense_srvs::srv::KeyValue>::SharedPtr keyValueServ_;
       rclcpp::Service<hri_safety_sense_srvs::srv::KeyString>::SharedPtr keyStringServ_;
       rclcpp::Publisher<std_msgs::msg::UInt32>::SharedPtr estopPub_;
-      rclcpp::Time lastDataRx_, lastTxTime_;
+      rclcpp::Time lastDataRx_;
 
       // Message Handlers
       MsgHandler *joystickHandler_;

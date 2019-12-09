@@ -28,16 +28,16 @@ namespace hri_safety_sense {
   /**
    *
    */
-  class JoystickHandler : public MsgHandler {
+  class JoystickHandler final : public MsgHandler {
      public:
       JoystickHandler(
         rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
         rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
         rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
         const std::string &frameId);
-      ~JoystickHandler();
+      ~JoystickHandler() override;
 
-      uint32_t handleNewMsg(const VscMsgType &incomingMsg);
+      uint32_t handleNewMsg(const VscMsgType &incomingMsg) override;
 
      private:
 

@@ -54,7 +54,7 @@ namespace hri_safety_sense {
 }
 
 VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
-  rclcpp::Node("VscProcess", node_options), myEStopState(0)
+  rclcpp::Node("VscProcess", node_options), myEStopState_(0)
 {
   std::string serialPort = this->declare_parameter<std::string>("serial",
     "/dev/ttyACM0");
@@ -68,8 +68,8 @@ VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   RCLCPP_INFO(this->get_logger(), "Frame ID set to:  %s", frameId.c_str());
 
   /* Open VSC Interface */
-  vscInterface = vsc_initialize(serialPort.c_str(), serialSpeed);
-  if (vscInterface == NULL) {
+  vscInterface_ = vsc_initialize(serialPort.c_str(), serialSpeed);
+  if (vscInterface_ == NULL) {
     RCLCPP_FATAL(this->get_logger(), "Cannot open serial port! (%s, %i)", serialPort.c_str(), serialSpeed);
     throw std::system_error(std::make_error_code(std::errc::io_error), "Cannot open serial port");
   } else {
@@ -88,45 +88,45 @@ VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   }
 
   // Create Message Handlers
-  joystickHandler = new JoystickHandler(this->get_node_topics_interface(),
+  joystickHandler_ = new JoystickHandler(this->get_node_topics_interface(),
     this->get_node_logging_interface(), this->get_node_clock_interface(),
     frameId);
 
   // EStop callback
-  estopServ = this->create_service<hri_safety_sense_srvs::srv::EmergencyStop>(
+  estopServ_ = this->create_service<hri_safety_sense_srvs::srv::EmergencyStop>(
     "safety/service/send_emergency_stop", std::bind(&VscProcess::EmergencyStop,
     this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   // KeyValue callbacks
-  keyValueServ = this->create_service<hri_safety_sense_srvs::srv::KeyValue>(
+  keyValueServ_ = this->create_service<hri_safety_sense_srvs::srv::KeyValue>(
     "safety/service/key_value", std::bind(&VscProcess::KeyValue, this,
     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-  keyStringServ = this->create_service<hri_safety_sense_srvs::srv::KeyString>(
+  keyStringServ_ = this->create_service<hri_safety_sense_srvs::srv::KeyString>(
     "safety/service/key_string", std::bind(&VscProcess::KeyString, this,
     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   // Publish Emergency Stop Status
-  estopPub = this->create_publisher<std_msgs::msg::UInt32>(
+  estopPub_ = this->create_publisher<std_msgs::msg::UInt32>(
     "safety/emergency_stop", 10);
 
   // Main Loop Timer Callback
-  mainLoopTimer = this->create_wall_timer(
+  mainLoopTimer_ = this->create_wall_timer(
     rclcpp::Duration(1.0 / VSC_INTERFACE_RATE * 10e9).to_chrono<std::chrono::nanoseconds>(),
     std::bind(&VscProcess::processOneLoop, this));
 
   // Init last time to now
-  lastDataRx = this->now();
+  lastDataRx_ = this->now();
 
   // Clear all error counters
-  memset(&errorCounts, 0, sizeof(errorCounts));
+  memset(&errorCounts_, 0, sizeof(errorCounts_));
 }
 
 VscProcess::~VscProcess()
 {
   // Destroy vscInterface
-  vsc_cleanup(vscInterface);
+  vsc_cleanup(vscInterface_);
 
-  if(joystickHandler) delete joystickHandler;
+  if(joystickHandler_) delete joystickHandler_;
 }
 
 bool VscProcess::EmergencyStop(
@@ -134,9 +134,9 @@ bool VscProcess::EmergencyStop(
   const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Request> req,
   const std::shared_ptr<hri_safety_sense_srvs::srv::EmergencyStop::Response> /*res*/)
 {
-  myEStopState = static_cast<uint32_t>(req->emergency_stop);
+  myEStopState_ = static_cast<uint32_t>(req->emergency_stop);
 
-  RCLCPP_WARN(this->get_logger(), "VscProcess::EmergencyStop: to 0x%x", myEStopState);
+  RCLCPP_WARN(this->get_logger(), "VscProcess::EmergencyStop: to 0x%x", myEStopState_);
 
   return true;
 }
@@ -147,7 +147,7 @@ bool VscProcess::KeyValue(
   const std::shared_ptr<hri_safety_sense_srvs::srv::KeyValue::Response> /*res*/)
 {
   // Send heartbeat message to vehicle in every state
-  vsc_send_user_feedback(vscInterface, req->key, req->value);
+  vsc_send_user_feedback(vscInterface_, req->key, req->value);
 
   RCLCPP_INFO(this->get_logger(), "VscProcess::KeyValue: 0x%x, 0x%x", req->key, req->value);
 
@@ -160,7 +160,7 @@ bool VscProcess::KeyString(
   const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Response> /*res*/)
 {
   // Send heartbeat message to vehicle in every state
-  vsc_send_user_feedback_string(vscInterface, req->key, req->value.c_str());
+  vsc_send_user_feedback_string(vscInterface_, req->key, req->value.c_str());
 
   RCLCPP_INFO(this->get_logger(), "VscProcess::KeyString: 0x%x, %s", req->key, req->value.c_str());
 
@@ -170,7 +170,7 @@ bool VscProcess::KeyString(
 void VscProcess::processOneLoop()
 {
   // Send heartbeat message to vehicle in every state
-  vsc_send_heartbeat(vscInterface, myEStopState);
+  vsc_send_heartbeat(vscInterface_, myEStopState_);
 
   // Check for new data from vehicle in every state
   readFromVehicle();
@@ -188,7 +188,7 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
     // Publish E-STOP Values
     std_msgs::msg::UInt32 estopValue;
     estopValue.data = msgPtr->EStopStatus;
-    estopPub->publish(estopValue);
+    estopPub_->publish(estopValue);
 
     if(msgPtr->EStopStatus > 0) {
       RCLCPP_WARN(this->get_logger(), "Received ESTOP from the vehicle!!! 0x%x", msgPtr->EStopStatus);
@@ -209,18 +209,18 @@ void VscProcess::readFromVehicle()
   VscMsgType recvMsg;
 
   /* Read all messages */
-  while (vsc_read_next_msg(vscInterface, &recvMsg) > 0) {
+  while (vsc_read_next_msg(vscInterface_, &recvMsg) > 0) {
     /* Read next Vsc Message */
     switch (recvMsg.msg.meta.msgType) {
     case MSG_VSC_HEARTBEAT:
       if(handleHeartbeatMsg(recvMsg) == 0) {
-        lastDataRx = this->now();
+        lastDataRx_ = this->now();
       }
 
       break;
     case MSG_VSC_JOYSTICK:
-      if(joystickHandler->handleNewMsg(recvMsg) == 0) {
-        lastDataRx = this->now();
+      if(joystickHandler_->handleNewMsg(recvMsg) == 0) {
+        lastDataRx_ = this->now();
       }
 
       break;
@@ -234,14 +234,14 @@ void VscProcess::readFromVehicle()
 
       break;
     default:
-      errorCounts.invalidRxMsgCount++;
+      errorCounts_.invalidRxMsgCount++;
       RCLCPP_ERROR(this->get_logger(), "Receive Error.  Invalid MsgType (0x%02X)", recvMsg.msg.meta.msgType);
       break;
     }
   }
 
   // Log warning when no data is received
-  rclcpp::Duration noDataDuration = this->now() - lastDataRx;
+  rclcpp::Duration noDataDuration = this->now() - lastDataRx_;
   if(noDataDuration > rclcpp::Duration(0, 250000000)) {
     // TODO(ros2/rclcpp#879) RCLCPP_THROTTLE_WARN() when released
     THROTTLE(this->get_clock(), std::chrono::nanoseconds(500000000),
