@@ -104,8 +104,9 @@ uint32_t hri_safety_sense::JoystickHandler::handleNewMsg(const VscMsgType &incom
     retval = -1;
 
     RCLCPP_WARN(this->nodeLogger->get_logger(),
-        "RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
-        (unsigned int)sizeof(JoystickMsgType), incomingMsg.msg.meta.length);
+      "RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+      static_cast<unsigned int>(sizeof(JoystickMsgType)),
+      incomingMsg.msg.meta.length);
   }
 
   return retval;

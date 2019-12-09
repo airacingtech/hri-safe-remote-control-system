@@ -77,22 +77,22 @@ namespace hri_safety_sense {
       int handleHeartbeatMsg(VscMsgType& recvMsg);
 
       // Local State
-      uint32_t myEStopState;
-      ErrorCounterType errorCounts;
+      uint32_t myEStopState_;
+      ErrorCounterType errorCounts_;
 
       // ROS
-      rclcpp::TimerBase::SharedPtr mainLoopTimer;
-      rclcpp::Service<hri_safety_sense_srvs::srv::EmergencyStop>::SharedPtr estopServ;
-      rclcpp::Service<hri_safety_sense_srvs::srv::KeyValue>::SharedPtr keyValueServ;
-      rclcpp::Service<hri_safety_sense_srvs::srv::KeyString>::SharedPtr keyStringServ;
-      rclcpp::Publisher<std_msgs::msg::UInt32>::SharedPtr estopPub;
-      rclcpp::Time lastDataRx, lastTxTime;
+      rclcpp::TimerBase::SharedPtr mainLoopTimer_;
+      rclcpp::Service<hri_safety_sense_srvs::srv::EmergencyStop>::SharedPtr estopServ_;
+      rclcpp::Service<hri_safety_sense_srvs::srv::KeyValue>::SharedPtr keyValueServ_;
+      rclcpp::Service<hri_safety_sense_srvs::srv::KeyString>::SharedPtr keyStringServ_;
+      rclcpp::Publisher<std_msgs::msg::UInt32>::SharedPtr estopPub_;
+      rclcpp::Time lastDataRx_, lastTxTime_;
 
       // Message Handlers
-      MsgHandler *joystickHandler;
+      MsgHandler *joystickHandler_;
 
       /* File descriptor for VSC Interface */
-      VscInterfaceType *vscInterface;
+      VscInterfaceType *vscInterface_;
 
   };
 

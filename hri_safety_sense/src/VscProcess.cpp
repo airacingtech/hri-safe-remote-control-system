@@ -56,16 +56,15 @@ namespace hri_safety_sense {
 VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   rclcpp::Node("VscProcess", node_options), myEStopState(0)
 {
-  std::string serialPort = "/dev/ttyACM0";
-  serialPort = this->declare_parameter<std::string>("serial", serialPort);
+  std::string serialPort = this->declare_parameter<std::string>("serial",
+    "/dev/ttyACM0");
   RCLCPP_INFO(this->get_logger(), "Serial Port set to:  %s", serialPort.c_str());
 
-  int serialSpeed = 115200;
-  serialSpeed = this->declare_parameter<int>("serial_speed", serialSpeed);
+  int serialSpeed = this->declare_parameter<int>("serial_speed", 115200);
   RCLCPP_INFO(this->get_logger(), "Serial Port Speed set to:  %i", serialSpeed);
 
-  std::string frameId = "/srcs";
-  frameId = this->declare_parameter<std::string>("frame_id", frameId);
+  std::string frameId = this->declare_parameter<std::string>("frame_id",
+    "/srcs");
   RCLCPP_INFO(this->get_logger(), "Frame ID set to:  %s", frameId.c_str());
 
   /* Open VSC Interface */
@@ -78,8 +77,7 @@ VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   }
 
   // Attempt to Set priority
-  bool setPriority = false;
-  setPriority = this->declare_parameter<bool>("set_priority", setPriority);
+  bool setPriority = this->declare_parameter<bool>("set_priority", false);
   RCLCPP_INFO(this->get_logger(), "Set priority:  %i", setPriority);
 
   if (setPriority) {
@@ -198,7 +196,8 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
 
   } else {
     RCLCPP_WARN(this->get_logger(), "RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
-        (unsigned int)sizeof(HeartbeatMsgType), recvMsg.msg.meta.length);
+      static_cast<unsigned int>(sizeof(HeartbeatMsgType)),
+      recvMsg.msg.meta.length);
     retVal = 1;
   }
 

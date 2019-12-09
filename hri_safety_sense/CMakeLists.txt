@@ -8,12 +8,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
-find_package(hri_c_driver)
-find_package(hri_safety_sense_srvs)
-find_package(rclcpp)
-find_package(sensor_msgs)
-find_package(std_msgs)
+find_package(ament_cmake_ros REQUIRED)
+find_package(hri_c_driver REQUIRED)
+find_package(hri_safety_sense_srvs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 add_executable(safe_remote_control
   src/main.cpp
