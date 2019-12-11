@@ -1,6 +1,7 @@
 # To compile ROS 2 driver:
 ```
 colcon build --packages-select hri_c_driver hri_safety_sense_srvs hri_safety_sense
+. install/setup.bash
 ```
 
 # To read from joystick, modify permissions to port:
@@ -11,8 +12,12 @@ where port is for example `/dev/ttyACM1`.
 
 # To run driver:
 ```
-. install/setup.bash
 ros2 run hri_safety_sense hri_joystick_node [__params:=cfg/params.yaml]
+```
+
+Or equivalently, use the launch file:
+```
+ros2 launch hri_safety_sense hri_joystick_node_launch.py
 ```
 
 # ROS 2 parameters:
