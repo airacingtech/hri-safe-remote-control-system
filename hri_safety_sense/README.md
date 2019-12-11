@@ -12,7 +12,7 @@ where port is for example `/dev/ttyACM1`.
 # To run driver:
 ```
 . install/setup.bash
-ros2 run hri_safety_sense safe_remote_control [__params:=config.yaml]
+ros2 run hri_safety_sense hri_joystick_node [__params:=config.yaml]
 ```
 
 # ROS 2 parameters:
