@@ -81,7 +81,7 @@ namespace hri_safety_sense {
 
       // Local State
       uint32_t myEStopState_;
-      ErrorCounterType errorCounts_;
+      ErrorCounterType errorCounts_{};
 
       // ROS
       rclcpp::TimerBase::SharedPtr mainLoopTimer_;

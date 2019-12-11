@@ -24,11 +24,11 @@
  * System Includes
  */
 #include <chrono>
-#include <errno.h>
+#include <cerrno>
 #include <exception>
 #include <functional>
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 #include <memory>
 #include <system_error>
 #include <sys/time.h>
@@ -44,15 +44,14 @@
 
 namespace hri_safety_sense {
 
-#define THROTTLE(clock, duration, thing) \
-{ \
-  static rclcpp::Time _last_output_time(0, 0, clock->get_clock_type()); \
-  auto _now = clock->now(); \
-  if (_now - _last_output_time > duration) { \
+#define THROTTLE(clock, duration, thing) do { \
+  static rclcpp::Time _last_output_time(0, 0, (clock)->get_clock_type()); \
+  auto _now = (clock)->now();                                           \
+  if (_now - _last_output_time > (duration)) {                          \
     _last_output_time = _now; \
     thing; \
   } \
-}
+} while(0)
 
 VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   rclcpp::Node("hri_joystick_node", node_options), myEStopState_(0)
@@ -70,12 +69,12 @@ VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
 
   /* Open VSC Interface */
   vscInterface_ = vsc_initialize(serialPort.c_str(), serialSpeed);
-  if (vscInterface_ == NULL) {
+  if (vscInterface_ == nullptr) {
     RCLCPP_FATAL(this->get_logger(), "Cannot open serial port! (%s, %i)", serialPort.c_str(), serialSpeed);
     throw std::system_error(std::make_error_code(std::errc::io_error), "Cannot open serial port");
-  } else {
-    RCLCPP_INFO(this->get_logger(), "Connected to VSC on %s : %i", serialPort.c_str(), serialSpeed);
   }
+
+  RCLCPP_INFO(this->get_logger(), "Connected to VSC on %s : %i", serialPort.c_str(), serialSpeed);
 
   // Attempt to Set priority
   bool setPriority = this->declare_parameter<bool>("set_priority", false);
@@ -117,9 +116,6 @@ VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
 
   // Init last time to now
   lastDataRx_ = this->now();
-
-  // Clear all error counters
-  memset(&errorCounts_, 0, sizeof(errorCounts_));
 }
 
 VscProcess::~VscProcess()

@@ -43,9 +43,11 @@ float hri_safety_sense::JoystickHandler::getStickValue(const JoystickType &joyst
 
   if(joystick.neutral_status == STATUS_SET) {
     return 0;
-  } else if(joystick.negative_status == STATUS_SET) {
+  }
+  if(joystick.negative_status == STATUS_SET) {
     return static_cast<float>(-1 * magnitude);
-  } else if(joystick.positive_status == STATUS_SET) {
+  }
+  if(joystick.positive_status == STATUS_SET) {
     return static_cast<float>(magnitude);
   }
 
