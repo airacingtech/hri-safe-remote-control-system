@@ -19,6 +19,10 @@
  * VSC Vehicle Interface
  */
 int main(int argc, char **argv) {
+  // Force flush of the stdout buffer, which ensures a sync of all prints
+  // even from a launch file.
+  setvbuf(stdout, nullptr, _IONBF, BUFSIZ);
+
   rclcpp::init(argc, argv);
 
   rclcpp::NodeOptions node_options;

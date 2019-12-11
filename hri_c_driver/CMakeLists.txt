@@ -8,17 +8,15 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# Needed to compile hri_safety_sense as shared library with hri_c_driver as
-#   dependency
-add_compile_options(-fPIC)
-
 find_package(ament_cmake REQUIRED)
 
 include_directories(
   include
 )
 
-add_library(hri_c_driver src/SerialInterface.c src/VehicleInterface.c)
+add_library(hri_c_driver SHARED
+  src/SerialInterface.c src/VehicleInterface.c
+)
 
 install(DIRECTORY include/
   DESTINATION include
