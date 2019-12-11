@@ -19,6 +19,7 @@
  * Includes
  */
 #include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joy.hpp"
 
 #include "hri_c_driver/VehicleMessages.h"
 #include "hri_safety_sense/MsgHandler.hpp"

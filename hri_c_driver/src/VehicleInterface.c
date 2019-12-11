@@ -41,7 +41,7 @@
  * @param count Number of bytes in the array of data.
  * @return 16-Bit checksum value
  */
-static uint16_t checksum_16(uint8_t* data, int count) {
+static uint16_t checksum_16(const uint8_t* data, int count) {
 	uint16_t sum1 = 0;
 	uint16_t sum2 = 0;
 	int index;
@@ -110,8 +110,9 @@ int vsc_send_msg(VscInterfaceType* vscInterface, VscMsgType *sendMsg) {
 	uint32_t retval;
 
 	/* Verify Msg is valid. */
-	if (sendMsg->msg.meta.length > VSC_MAX_MESSAGE_LENGTH)
+	if (sendMsg->msg.meta.length > VSC_MAX_MESSAGE_LENGTH) {
 		return -1;
+        }
 
 	sendMsg->msg.meta.header_1 = VSC_MESSAGE_HEADER_1;
 	sendMsg->msg.meta.header_2 = VSC_MESSAGE_HEADER_2;
@@ -256,9 +257,11 @@ int32_t vsc_get_stick_value(JoystickType joystick) {
 
 	if (joystick.neutral_status == STATUS_SET) {
 		return 0;
-	} else if (joystick.negative_status == STATUS_SET) {
+	}
+        if (joystick.negative_status == STATUS_SET) {
 		return -1 * magnitude;
-	} else if (joystick.positive_status == STATUS_SET) {
+	}
+        if (joystick.positive_status == STATUS_SET) {
 		return magnitude;
 	}
 
