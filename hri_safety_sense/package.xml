@@ -15,7 +15,7 @@
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <!--depend>rclcpp_components</depend-->
+  <depend>rclcpp_components</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>hri_c_driver</depend>

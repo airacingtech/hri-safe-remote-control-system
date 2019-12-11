@@ -16,6 +16,7 @@
  * ROS Includes
  */
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 #include "std_msgs/msg/u_int32.hpp"
 
@@ -249,3 +250,5 @@ void VscProcess::readFromVehicle()
 
 }
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(hri_safety_sense::VscProcess)

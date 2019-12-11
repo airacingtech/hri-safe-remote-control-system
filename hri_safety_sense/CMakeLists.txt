@@ -12,6 +12,7 @@ find_package(ament_cmake_ros REQUIRED)
 find_package(hri_c_driver REQUIRED)
 find_package(hri_safety_sense_srvs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
@@ -19,21 +20,33 @@ include_directories(
   include
 )
 
-add_executable(hri_joystick_node
-  src/main.cpp
+add_library(hri_joystick SHARED
   src/VscProcess.cpp
   src/JoystickHandler.cpp
 )
-ament_target_dependencies(hri_joystick_node
+ament_target_dependencies(hri_joystick
   hri_c_driver
   hri_safety_sense_srvs
   rclcpp
+  rclcpp_components
   sensor_msgs
   std_msgs
 )
 
+add_executable(hri_joystick_node src/main.cpp)
+ament_target_dependencies(hri_joystick_node rclcpp)
+target_link_libraries(hri_joystick_node hri_joystick)
+
+install(TARGETS hri_joystick
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 install(TARGETS hri_joystick_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
+rclcpp_components_register_nodes(hri_joystick
+  "hri_safety_sense::VscProcess")
 
 ament_package()

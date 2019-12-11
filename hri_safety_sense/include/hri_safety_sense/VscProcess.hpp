@@ -15,6 +15,8 @@
 #ifndef __VSC_PROCESS_INCLUDED__
 #define __VSC_PROCESS_INCLUDED__
 
+#include <memory>
+
 /**
  * ROS Includes
  */
