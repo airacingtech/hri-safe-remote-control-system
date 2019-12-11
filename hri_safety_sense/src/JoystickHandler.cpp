@@ -69,7 +69,8 @@ uint32_t hri_safety_sense::JoystickHandler::handleNewMsg(const VscMsgType &incom
 
   if(incomingMsg.msg.meta.length == sizeof(JoystickMsgType)) {
 
-    JoystickMsgType *joyMsg = (JoystickMsgType*)incomingMsg.msg.meta.data;
+    JoystickMsgType *joyMsg = reinterpret_cast<JoystickMsgType*>(
+      const_cast<uint8_t*>(incomingMsg.msg.meta.data));
 
     // Broadcast Left Joystick
     sensor_msgs::msg::Joy sendLeftMsg;

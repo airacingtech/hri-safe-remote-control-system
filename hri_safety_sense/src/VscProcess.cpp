@@ -182,7 +182,7 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
   if(recvMsg.msg.meta.length == sizeof(HeartbeatMsgType)) {
     RCLCPP_DEBUG(this->get_logger(), "Received Heartbeat from VSC");
 
-    HeartbeatMsgType *msgPtr = (HeartbeatMsgType*)recvMsg.msg.meta.data;
+    HeartbeatMsgType *msgPtr = reinterpret_cast<HeartbeatMsgType*>(recvMsg.msg.meta.data);
 
     // Publish E-STOP Values
     std_msgs::msg::UInt32 estopValue;
