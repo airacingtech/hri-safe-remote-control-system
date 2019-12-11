@@ -1,4 +1,4 @@
-VscProcess:
+hri_joystick_node:
   ros__parameters:
     serial: /dev/ttyACM1
     frame_id: /joystick

@@ -13,7 +13,7 @@
  */
 
 #include "rclcpp/rclcpp.hpp"
-#include "VscProcess.hpp"
+#include "hri_safety_sense/VscProcess.hpp"
 
 /**
  * VSC Vehicle Interface

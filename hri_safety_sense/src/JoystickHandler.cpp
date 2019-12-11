@@ -25,22 +25,19 @@ hri_safety_sense::JoystickHandler::JoystickHandler(
   rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
   rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
   rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
-  const std::string &frameId)
+  const std::string &frameId) :
+  nodeLogger_(nodeLogger), nodeClock_(nodeClock), frameId_(frameId)
 {
   // Joystick Pub
-  rawLeftPub = rclcpp::create_publisher<sensor_msgs::msg::Joy>(nodeTopics,
+  rawLeftPub_ = rclcpp::create_publisher<sensor_msgs::msg::Joy>(nodeTopics,
     "/joy", 10);
-
-  this->nodeLogger = nodeLogger;
-  this->nodeClock = nodeClock;
-  this->frameId = frameId;
 }
 
 hri_safety_sense::JoystickHandler::~JoystickHandler()
 {
 }
 
-float hri_safety_sense::JoystickHandler::getStickValue(JoystickType joystick)
+float hri_safety_sense::JoystickHandler::getStickValue(const JoystickType &joystick)
 {
   int32_t magnitude = (joystick.magnitude<<2) + joystick.mag_lsb;
 
@@ -56,7 +53,7 @@ float hri_safety_sense::JoystickHandler::getStickValue(JoystickType joystick)
   return 0;
 }
 
-int32_t hri_safety_sense::JoystickHandler::getButtonValue(uint8_t button)
+int32_t hri_safety_sense::JoystickHandler::getButtonValue(const uint8_t &button)
 {
   if(button == STATUS_SET) {
     return 1;
@@ -77,8 +74,8 @@ uint32_t hri_safety_sense::JoystickHandler::handleNewMsg(const VscMsgType &incom
     // Broadcast Left Joystick
     sensor_msgs::msg::Joy sendLeftMsg;
 
-    sendLeftMsg.header.stamp = this->nodeClock->get_clock()->now();
-    sendLeftMsg.header.frame_id = this->frameId;
+    sendLeftMsg.header.stamp = this->nodeClock_->get_clock()->now();
+    sendLeftMsg.header.frame_id = this->frameId_;
 
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
@@ -98,12 +95,12 @@ uint32_t hri_safety_sense::JoystickHandler::handleNewMsg(const VscMsgType &incom
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.second));
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->rightSwitch.third));
 
-    rawLeftPub->publish(sendLeftMsg);
+    rawLeftPub_->publish(sendLeftMsg);
 
   } else {
     retval = -1;
 
-    RCLCPP_WARN(this->nodeLogger->get_logger(),
+    RCLCPP_WARN(this->nodeLogger_->get_logger(),
       "RECEIVED PTZ COMMANDS WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
       static_cast<unsigned int>(sizeof(JoystickMsgType)),
       incomingMsg.msg.meta.length);

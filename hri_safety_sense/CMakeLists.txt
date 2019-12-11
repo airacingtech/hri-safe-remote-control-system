@@ -15,18 +15,24 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
-add_executable(safe_remote_control
+include_directories(
+  include
+)
+
+add_executable(hri_joystick_node
   src/main.cpp
   src/VscProcess.cpp
-  src/JoystickHandler.cpp)
-ament_target_dependencies(safe_remote_control
+  src/JoystickHandler.cpp
+)
+ament_target_dependencies(hri_joystick_node
   hri_c_driver
   hri_safety_sense_srvs
   rclcpp
   sensor_msgs
-  std_msgs)
+  std_msgs
+)
 
-install(TARGETS safe_remote_control
+install(TARGETS hri_joystick_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

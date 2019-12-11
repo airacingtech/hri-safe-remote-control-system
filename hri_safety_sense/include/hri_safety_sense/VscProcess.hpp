@@ -24,13 +24,14 @@
 /**
  * HRI_COMMON Includes
  */
-#include "MsgHandler.hpp"
 #include "hri_c_driver/VehicleMessages.h"
 #include "hri_c_driver/VehicleInterface.h"
 
 #include "hri_safety_sense_srvs/srv/emergency_stop.hpp"
 #include "hri_safety_sense_srvs/srv/key_value.hpp"
 #include "hri_safety_sense_srvs/srv/key_string.hpp"
+
+#include "hri_safety_sense/MsgHandler.hpp"
 
 namespace hri_safety_sense {
 
@@ -89,11 +90,10 @@ namespace hri_safety_sense {
       rclcpp::Time lastDataRx_;
 
       // Message Handlers
-      MsgHandler *joystickHandler_;
+      std::unique_ptr<MsgHandler> joystickHandler_;
 
       /* File descriptor for VSC Interface */
       VscInterfaceType *vscInterface_;
-
   };
 
 } // namespace

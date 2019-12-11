@@ -36,8 +36,8 @@
 /**
  * Includes
  */
-#include "VscProcess.hpp"
 #include "JoystickHandler.hpp"
+#include "hri_safety_sense/VscProcess.hpp"
 #include "hri_c_driver/VehicleInterface.h"
 #include "hri_c_driver/VehicleMessages.h"
 
@@ -54,7 +54,7 @@ namespace hri_safety_sense {
 }
 
 VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
-  rclcpp::Node("VscProcess", node_options), myEStopState_(0)
+  rclcpp::Node("hri_joystick_node", node_options), myEStopState_(0)
 {
   std::string serialPort = this->declare_parameter<std::string>("serial",
     "/dev/ttyACM0");
@@ -88,7 +88,7 @@ VscProcess::VscProcess(const rclcpp::NodeOptions &node_options) :
   }
 
   // Create Message Handlers
-  joystickHandler_ = new JoystickHandler(this->get_node_topics_interface(),
+  joystickHandler_ = std::make_unique<JoystickHandler>(this->get_node_topics_interface(),
     this->get_node_logging_interface(), this->get_node_clock_interface(),
     frameId);
 
@@ -125,8 +125,6 @@ VscProcess::~VscProcess()
 {
   // Destroy vscInterface
   vsc_cleanup(vscInterface_);
-
-  if(joystickHandler_) delete joystickHandler_;
 }
 
 bool VscProcess::EmergencyStop(
@@ -195,7 +193,7 @@ int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
     }
 
   } else {
-    RCLCPP_WARN(this->get_logger(), "RECEIVED HEARTBEAT WITH INVALID MESSAGE SIZE! Expected: 0x%x, Actual: 0x%x",
+    RCLCPP_WARN(this->get_logger(), "Received heartbeat with invalid message size! Expected: 0x%x, Actual: 0x%x",
       static_cast<unsigned int>(sizeof(HeartbeatMsgType)),
       recvMsg.msg.meta.length);
     retVal = 1;
@@ -251,4 +249,3 @@ void VscProcess::readFromVehicle()
 
 }
 }
-

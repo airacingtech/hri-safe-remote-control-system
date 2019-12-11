@@ -21,7 +21,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "hri_c_driver/VehicleMessages.h"
-#include "MsgHandler.hpp"
+#include "hri_safety_sense/MsgHandler.hpp"
 
 namespace hri_safety_sense {
 
@@ -41,15 +41,15 @@ namespace hri_safety_sense {
 
      private:
 
-      float getStickValue(JoystickType joystick);
-      int32_t getButtonValue(uint8_t button);
+      float getStickValue(const JoystickType &joystick);
+      int32_t getButtonValue(const uint8_t &button);
 
-      rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger;
-      rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock;
+      rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger_;
+      rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock_;
 
-      rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr rawLeftPub, rawRightPub;
+      rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr rawLeftPub_;
 
-      std::string frameId;
+      std::string frameId_;
       const float AXIS_MAX = 1023.;
   };
 
