@@ -12,9 +12,10 @@
   <license>BSD</license>
   <author>hri</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
-  <depend>roscpp</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>hri_c_driver</depend>
@@ -24,6 +25,7 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
+    <build_type>ament_cmake</build_type>
 
   </export>
 </package>

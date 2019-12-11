@@ -41,7 +41,7 @@
  * @param count Number of bytes in the array of data.
  * @return 16-Bit checksum value
  */
-static uint16_t checksum_16(uint8_t* data, int count) {
+static uint16_t checksum_16(const uint8_t* data, int count) {
 	uint16_t sum1 = 0;
 	uint16_t sum2 = 0;
 	int index;
@@ -110,25 +110,26 @@ int vsc_send_msg(VscInterfaceType* vscInterface, VscMsgType *sendMsg) {
 	uint32_t retval;
 
 	/* Verify Msg is valid. */
-	if (sendMsg->msg.length > VSC_MAX_MESSAGE_LENGTH)
+	if (sendMsg->msg.meta.length > VSC_MAX_MESSAGE_LENGTH) {
 		return -1;
+        }
 
-	sendMsg->msg.header_1 = VSC_MESSAGE_HEADER_1;
-	sendMsg->msg.header_2 = VSC_MESSAGE_HEADER_2;
+	sendMsg->msg.meta.header_1 = VSC_MESSAGE_HEADER_1;
+	sendMsg->msg.meta.header_2 = VSC_MESSAGE_HEADER_2;
 
 	/* Calculate Fletchers Checksum and add to buffer. */
 	checksum = checksum_16((uint8_t*) sendMsg->msg.buffer,
-			sendMsg->msg.length + VSC_HEADER_OVERHEAD);
+			sendMsg->msg.meta.length + VSC_HEADER_OVERHEAD);
 
 	/* Add checksum to end of buffer */
-	sendMsg->msg.buffer[sendMsg->msg.length + VSC_HEADER_OVERHEAD] = checksum
+	sendMsg->msg.buffer[sendMsg->msg.meta.length + VSC_HEADER_OVERHEAD] = checksum
 			& 0xff;
-	sendMsg->msg.buffer[sendMsg->msg.length + VSC_HEADER_OVERHEAD + 1] =
+	sendMsg->msg.buffer[sendMsg->msg.meta.length + VSC_HEADER_OVERHEAD + 1] =
 			(checksum >> 8) & 0xff;
 
 	/* Send message over VSC connection. */
 	retval = write_to_serial(vscInterface->fd, (void*) sendMsg->msg.buffer,
-			sendMsg->msg.length + VSC_HEADER_OVERHEAD + VSC_FOOTER_OVERHEAD);
+			sendMsg->msg.meta.length + VSC_HEADER_OVERHEAD + VSC_FOOTER_OVERHEAD);
 
 	return retval;
 }
@@ -177,10 +178,10 @@ int vsc_read_next_msg(VscInterfaceType* vscInterface, VscMsgType *newMsg) {
 			&& (vscInterface->front - vscInterface->back
 					>= VSC_MIN_MESSAGE_LENGTH) && !done) {
 		msgPtr = (VscMsgType *) (vscInterface->recvbuffer + vscInterface->back);
-		if (msgPtr->msg.header_1 == VSC_MESSAGE_HEADER_1
-				&& msgPtr->msg.header_2 == VSC_MESSAGE_HEADER_2) {
+		if (msgPtr->msg.meta.header_1 == VSC_MESSAGE_HEADER_1
+				&& msgPtr->msg.meta.header_2 == VSC_MESSAGE_HEADER_2) {
 			/* Verify length */
-			uint32_t expectedLength = msgPtr->msg.length + VSC_HEADER_OVERHEAD
+			uint32_t expectedLength = msgPtr->msg.meta.length + VSC_HEADER_OVERHEAD
 					+ VSC_FOOTER_OVERHEAD;
 
 			if ((vscInterface->front - vscInterface->back) < expectedLength) {
@@ -190,10 +191,10 @@ int vsc_read_next_msg(VscInterfaceType* vscInterface, VscMsgType *newMsg) {
 
 				/* Calculate Fletchers Checksum verify */
 				uint16_t checksum = checksum_16((uint8_t*) msgPtr->msg.buffer,
-						msgPtr->msg.length + VSC_HEADER_OVERHEAD);
-				if ((msgPtr->msg.buffer[msgPtr->msg.length + VSC_HEADER_OVERHEAD]
+						msgPtr->msg.meta.length + VSC_HEADER_OVERHEAD);
+				if ((msgPtr->msg.buffer[msgPtr->msg.meta.length + VSC_HEADER_OVERHEAD]
 						== (checksum & 0xff))
-						&& (msgPtr->msg.buffer[msgPtr->msg.length
+						&& (msgPtr->msg.buffer[msgPtr->msg.meta.length
 								+ VSC_HEADER_OVERHEAD + 1]
 								== ((checksum >> 8) & 0xff))) {
 
@@ -208,9 +209,9 @@ int vsc_read_next_msg(VscInterfaceType* vscInterface, VscMsgType *newMsg) {
 				} else {
 					fprintf(stderr,
 							"VscInterface: Invalid checksum 0x%02x 0x%02x received when expecting 0x%02x 0x%02x\n",
-							msgPtr->msg.buffer[msgPtr->msg.length
+							msgPtr->msg.buffer[msgPtr->msg.meta.length
 									+ VSC_HEADER_OVERHEAD],
-							msgPtr->msg.buffer[msgPtr->msg.length
+							msgPtr->msg.buffer[msgPtr->msg.meta.length
 									+ VSC_HEADER_OVERHEAD + 1], checksum & 0xff,
 							(checksum >> 8) & 0xff);
 					vscInterface->back += expectedLength;
@@ -220,7 +221,7 @@ int vsc_read_next_msg(VscInterfaceType* vscInterface, VscMsgType *newMsg) {
 			/* Search for start of message. */
 			fprintf(stderr,
 					"VscInterface: Invalid bytes 0x%02x 0x%02x received when expecting message headers\n",
-					msgPtr->msg.header_1, msgPtr->msg.header_2);
+					msgPtr->msg.meta.header_1, msgPtr->msg.meta.header_2);
 			vscInterface->back++;
 		}
 	}
@@ -256,9 +257,11 @@ int32_t vsc_get_stick_value(JoystickType joystick) {
 
 	if (joystick.neutral_status == STATUS_SET) {
 		return 0;
-	} else if (joystick.negative_status == STATUS_SET) {
+	}
+        if (joystick.negative_status == STATUS_SET) {
 		return -1 * magnitude;
-	} else if (joystick.positive_status == STATUS_SET) {
+	}
+        if (joystick.positive_status == STATUS_SET) {
 		return magnitude;
 	}
 
@@ -293,11 +296,11 @@ int32_t vsc_get_button_value(uint8_t button) {
  */
 void vsc_send_user_feedback(VscInterfaceType* vscInterface, uint8_t key, int32_t value) {
 	VscMsgType feedbackMsg;
-	UserFeedbackMsgType *msgPtr = (UserFeedbackMsgType*) feedbackMsg.msg.data;
+	UserFeedbackMsgType *msgPtr = (UserFeedbackMsgType*) feedbackMsg.msg.meta.data;
 
 	/* Fill Message */
-	feedbackMsg.msg.msgType = MSG_USER_FEEDBACK;
-	feedbackMsg.msg.length = sizeof(UserFeedbackMsgType);
+	feedbackMsg.msg.meta.msgType = MSG_USER_FEEDBACK;
+	feedbackMsg.msg.meta.length = sizeof(UserFeedbackMsgType);
 
 	/* Set this value > 0 to indicate an E-STOP condition from SW */
 	msgPtr->key = key;
@@ -320,12 +323,12 @@ void vsc_send_user_feedback(VscInterfaceType* vscInterface, uint8_t key, int32_t
  */
 void vsc_send_user_feedback_string(VscInterfaceType* vscInterface, uint8_t key, const char* value) {
 	VscMsgType feedbackMsg;
-	UserFeedbackStringMsgType *msgPtr = (UserFeedbackStringMsgType*) feedbackMsg.msg.data;
-        memset(feedbackMsg.msg.data, 0, sizeof(feedbackMsg.msg.data));
+	UserFeedbackStringMsgType *msgPtr = (UserFeedbackStringMsgType*) feedbackMsg.msg.meta.data;
+        memset(feedbackMsg.msg.meta.data, 0, sizeof(feedbackMsg.msg.meta.data));
 
 	/* Fill Message */
-	feedbackMsg.msg.msgType = MSG_USER_FEEDBACK_STRING;
-	feedbackMsg.msg.length = sizeof(UserFeedbackStringMsgType);
+	feedbackMsg.msg.meta.msgType = MSG_USER_FEEDBACK_STRING;
+	feedbackMsg.msg.meta.length = sizeof(UserFeedbackStringMsgType);
 
 	/* Set this value > 0 to indicate an E-STOP condition from SW */
 	msgPtr->key = key;
@@ -347,11 +350,11 @@ void vsc_send_user_feedback_string(VscInterfaceType* vscInterface, uint8_t key, 
  */
 void vsc_send_heartbeat(VscInterfaceType* vscInterface, uint8_t EStopStatus) {
 	VscMsgType heartbeatMsg;
-	UserHeartbeatMsgType *msgPtr = (UserHeartbeatMsgType*) heartbeatMsg.msg.data;
+	UserHeartbeatMsgType *msgPtr = (UserHeartbeatMsgType*) heartbeatMsg.msg.meta.data;
 
 	/* Fill Message */
-	heartbeatMsg.msg.msgType = MSG_USER_HEARTBEAT;
-	heartbeatMsg.msg.length = sizeof(UserHeartbeatMsgType);
+	heartbeatMsg.msg.meta.msgType = MSG_USER_HEARTBEAT;
+	heartbeatMsg.msg.meta.length = sizeof(UserHeartbeatMsgType);
 
 	/* Set this value > 0 to indicate an E-STOP condition from SW */
 	msgPtr->EStopStatus = EStopStatus;

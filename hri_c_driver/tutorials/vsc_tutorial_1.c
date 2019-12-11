@@ -63,7 +63,7 @@ unsigned long diffTime(struct timespec start, struct timespec end, struct timesp
 }
 
 void handleJoystickMsg(VscMsgType *recvMsg) {
-	JoystickMsgType *joyMsg = (JoystickMsgType*) recvMsg->msg.data;
+	JoystickMsgType *joyMsg = (JoystickMsgType*) recvMsg->msg.meta.data;
 	printf("Joystick (L / R): %5i, %5i, %5i / %5i, %5i, %5i ",
 			vsc_get_stick_value(joyMsg->leftX), vsc_get_stick_value(joyMsg->leftY),
 			vsc_get_stick_value(joyMsg->leftZ), vsc_get_stick_value(joyMsg->rightX),
@@ -79,7 +79,7 @@ void handleJoystickMsg(VscMsgType *recvMsg) {
 }
 
 void handleHeartbeatMsg(VscMsgType *recvMsg) {
-	HeartbeatMsgType *msgPtr = (HeartbeatMsgType*) recvMsg->msg.data;
+	HeartbeatMsgType *msgPtr = (HeartbeatMsgType*) recvMsg->msg.meta.data;
 
 	printf("Heartbeat: E-Stop:  0x%x, VscMode: 0x%x, AutonomonyMode: 0x%x\n", 
               msgPtr->EStopStatus, msgPtr->VscMode, msgPtr->AutonomonyMode);
@@ -105,18 +105,18 @@ void handleHeartbeatMsg(VscMsgType *recvMsg) {
 }
 
 void handleGpsMsg(VscMsgType *recvMsg) {
-	GpsMsgType *msgPtr = (GpsMsgType*) recvMsg->msg.data;
+	GpsMsgType *msgPtr = (GpsMsgType*) recvMsg->msg.meta.data;
 	char message[100];
 
-	strncpy(message, (char*)msgPtr->data, recvMsg->msg.length-1);
-	message[recvMsg->msg.length-1] = '\0';
+	strncpy(message, (char*)msgPtr->data, recvMsg->msg.meta.length-1);
+	message[recvMsg->msg.meta.length-1] = '\0';
 	printf("Received GPS Message (0x%x): %s\n", msgPtr->source, message);
 
 	/* TODO: Add application specific code here to handle GPS messages */
 }
 
 void handleFeedbackMsg(VscMsgType *recvMsg) {
-	UserFeedbackMsgType *msgPtr = (UserFeedbackMsgType*) recvMsg->msg.data;
+	UserFeedbackMsgType *msgPtr = (UserFeedbackMsgType*) recvMsg->msg.meta.data;
 
 	printf("Received Feedback Message.  Key: %i, Value %i\n", msgPtr->key, msgPtr->value);
 
@@ -129,7 +129,7 @@ void readFromVsc() {
 	/* Read all messages */
 	while (vsc_read_next_msg(vscInterface, &recvMsg) > 0) {
 		/* Read next Vsc Message */
-		switch (recvMsg.msg.msgType) {
+		switch (recvMsg.msg.meta.msgType) {
 		case MSG_VSC_HEARTBEAT:
 			handleHeartbeatMsg(&recvMsg);
 
@@ -148,7 +148,7 @@ void readFromVsc() {
 			break;
 		default:
 			printf("ERROR: Receive Error.  Invalid MsgType (0x%02X)\n",
-					recvMsg.msg.msgType);
+					recvMsg.msg.meta.msgType);
 			break;
 		}
 	}

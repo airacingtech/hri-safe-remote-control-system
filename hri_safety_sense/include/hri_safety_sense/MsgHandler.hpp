@@ -12,40 +12,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __JOYSTICK_HANDLER_INCLUDED__
-#define __JOYSTICK_HANDLER_INCLUDED__
+#ifndef __MSG_HANDLER_INCLUDED__
+#define __MSG_HANDLER_INCLUDED__
 
 /**
  * Includes
  */
-#include "ros/ros.h"
-
 #include "hri_c_driver/VehicleMessages.h"
-#include "MsgHandler.h"
 
 namespace hri_safety_sense {
 
-	/**
-	 *
-	 */
-	class JoystickHandler : public MsgHandler {
-	   public:
-		  JoystickHandler(const std::string &frameId);
-		  ~JoystickHandler();
+/**
+ *
+ */
+class MsgHandler {
+   public:
+	  virtual ~MsgHandler() {};
 
-		  uint32_t handleNewMsg(const VscMsgType &incomingMsg);
+	  virtual uint32_t handleNewMsg(const VscMsgType &incomingMsg) = 0;
 
-	   private:
+   private:
 
-		  float getStickValue(JoystickType joystick);
-		  int32_t getButtonValue(uint8_t button);
-
-		  ros::NodeHandle 		rosNode;
-		  ros::Publisher 		rawLeftPub, rawRightPub;
-
-		  std::string frameId;
-		  const float AXIS_MAX = 1023.;
-	};
+};
 
 }
 

@@ -1,5 +1,5 @@
 # KEY VALUE 
-uint8 Key
-string Value
+uint8 key
+string value
 ---
 

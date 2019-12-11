@@ -33,7 +33,7 @@ extern "C" {
  *   - Structs need to be packed for alignment of
  *     serial interface data.
  ************************************************************/
-#pragma pack(1)
+#pragma pack(push, 1)
 
 #define VSC_MESSAGE_HEADER_1 	0x10
 #define VSC_MESSAGE_HEADER_2 	0x01
@@ -103,7 +103,7 @@ typedef union {
 		uint8_t  msgType;
 		uint8_t  length;
 		uint8_t  data[VSC_MAX_MESSAGE_LENGTH];
-	};
+	} meta;
 } VscMsgData;
 
 /** VscMsgType
@@ -247,5 +247,6 @@ enum MOTOR_INTENSITY_TYPE {
 }
 #endif
 
+#pragma pack(pop)
 
 #endif

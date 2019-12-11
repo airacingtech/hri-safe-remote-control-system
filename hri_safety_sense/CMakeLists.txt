@@ -1,63 +1,56 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(hri_safety_sense)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  sensor_msgs
+find_package(ament_cmake_ros REQUIRED)
+find_package(hri_c_driver REQUIRED)
+find_package(hri_safety_sense_srvs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+
+include_directories(
+  include
+)
+
+add_library(hri_joystick SHARED
+  src/VscProcess.cpp
+  src/JoystickHandler.cpp
+)
+ament_target_dependencies(hri_joystick
   hri_c_driver
   hri_safety_sense_srvs
+  rclcpp
+  rclcpp_components
+  sensor_msgs
+  std_msgs
 )
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs hri_c_driver hri_safety_sense_srvs
+add_executable(hri_joystick_node src/main.cpp)
+ament_target_dependencies(hri_joystick_node rclcpp)
+target_link_libraries(hri_joystick_node hri_joystick)
+
+install(TARGETS hri_joystick
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+install(TARGETS hri_joystick_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-include_directories(
-  ${catkin_INCLUDE_DIRS}
+install(DIRECTORY launch cfg
+  DESTINATION share/${PROJECT_NAME}
 )
 
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-add_executable(safe_remote_control src/main.cpp src/VscProcess.cpp src/JoystickHandler.cpp)
+rclcpp_components_register_nodes(hri_joystick
+  "hri_safety_sense::VscProcess")
 
-## Specify libraries to link a library or executable target against
-target_link_libraries(safe_remote_control
-  ${catkin_LIBRARIES}
-)
-
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executables and/or libraries for installation
-install(TARGETS safe_remote_control
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+ament_package()

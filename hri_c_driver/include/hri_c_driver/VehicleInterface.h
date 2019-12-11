@@ -29,10 +29,10 @@ extern "C" {
 #define SIZE_RECEIVE_BUFFER   1000
 
 typedef struct {
-	uint32_t front;
-	uint32_t back;
-	int fd;
-	uint8_t  recvbuffer[SIZE_RECEIVE_BUFFER];
+  uint32_t front;
+  uint32_t back;
+  int fd;
+  uint8_t  recvbuffer[SIZE_RECEIVE_BUFFER];
 } VscInterfaceType;
 
 /**
