@@ -46,6 +46,10 @@ install(TARGETS hri_joystick_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(DIRECTORY launch cfg
+  DESTINATION share/${PROJECT_NAME}
+)
+
 rclcpp_components_register_nodes(hri_joystick
   "hri_safety_sense::VscProcess")
 
