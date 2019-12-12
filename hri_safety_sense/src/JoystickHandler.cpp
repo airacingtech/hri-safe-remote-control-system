@@ -21,7 +21,9 @@
 #include "hri_c_driver/VehicleMessages.h"
 #include "JoystickHandler.hpp"
 
-hri_safety_sense::JoystickHandler::JoystickHandler(
+namespace hri_safety_sense {
+
+JoystickHandler::JoystickHandler(
   rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
   rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
   rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
@@ -33,11 +35,7 @@ hri_safety_sense::JoystickHandler::JoystickHandler(
     "/joy", 10);
 }
 
-hri_safety_sense::JoystickHandler::~JoystickHandler()
-{
-}
-
-float hri_safety_sense::JoystickHandler::getStickValue(const JoystickType &joystick)
+float JoystickHandler::getStickValue(const JoystickType &joystick)
 {
   int32_t magnitude = (joystick.magnitude<<2) + joystick.mag_lsb;
 
@@ -55,7 +53,7 @@ float hri_safety_sense::JoystickHandler::getStickValue(const JoystickType &joyst
   return 0;
 }
 
-int32_t hri_safety_sense::JoystickHandler::getButtonValue(const uint8_t &button)
+int32_t JoystickHandler::getButtonValue(const uint8_t &button)
 {
   if(button == STATUS_SET) {
     return 1;
@@ -65,7 +63,7 @@ int32_t hri_safety_sense::JoystickHandler::getButtonValue(const uint8_t &button)
   return 0;
 }
 
-uint32_t hri_safety_sense::JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
+uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
 {
   int retval = 0;
 
@@ -112,4 +110,4 @@ uint32_t hri_safety_sense::JoystickHandler::handleNewMsg(const VscMsgType &incom
   return retval;
 }
 
-
+}  // namespace hri_safety_sense

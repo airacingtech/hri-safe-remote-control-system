@@ -27,14 +27,16 @@ namespace hri_safety_sense {
  */
 class MsgHandler {
    public:
-	  virtual ~MsgHandler() {};
+          MsgHandler() = default;
+	  virtual ~MsgHandler() = default;
+          MsgHandler(MsgHandler &&c) = delete;
+          MsgHandler &operator=(MsgHandler &&c) = delete;
+          MsgHandler(const MsgHandler &c) = delete;
+          MsgHandler &operator=(const MsgHandler &c) = delete;
 
 	  virtual uint32_t handleNewMsg(const VscMsgType &incomingMsg) = 0;
-
-   private:
-
 };
 
-}
+}  // namespace hri_safety_sense
 
 #endif

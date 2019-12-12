@@ -175,7 +175,8 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, signal_handler);
 
 	/* Open VSC Interface */
-	vscInterface = vsc_initialize(argv[1], atoi(argv[2]));
+        unsigned int baud = strtoul(argv[2], NULL, 10);
+	vscInterface = vsc_initialize(argv[1], baud);
 	if (vscInterface == NULL) {
 		printf("Opening VSC Interface failed.\n");
 		exit(EXIT_FAILURE);
@@ -183,9 +184,6 @@ int main(int argc, char *argv[]) {
 
 	/* Initialize the input set */
 	vsc_fd = vsc_get_fd(vscInterface);
-	FD_ZERO(&input);
-	FD_SET(vsc_fd, &input);
-	max_fd = vsc_fd + 1;
 
 	/* Reset timing values to the current time */
 	clock_gettime(CLOCK_REALTIME, &lastSent);

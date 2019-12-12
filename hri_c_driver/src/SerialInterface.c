@@ -43,7 +43,7 @@ int open_serial_interface(const char *device, const unsigned int baud) {
 	speed_t speed = B115200;
 
 	/* Open device */
-	fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
+	fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK | O_CLOEXEC);
 	if (fd == -1) {
 		return -1;
 	}
