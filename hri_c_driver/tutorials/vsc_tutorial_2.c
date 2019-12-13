@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, signal_handler);
 
 	/* Open VSC Interface */
-        unsigned int baud = strtoul(argv[2], NULL, 10);
+	unsigned int baud = strtoul(argv[2], NULL, 10);
 	vscInterface = vsc_initialize(argv[1], baud);
 	if (vscInterface == NULL) {
 		printf("Opening VSC Interface failed.\n");
