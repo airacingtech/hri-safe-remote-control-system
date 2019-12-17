@@ -1,0 +1,2 @@
+SUBSYSTEMS=="usb", SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ACTION=="add", ATTRS{idVendor}=="2a99", ATTRS{idProduct}=="d002", SYMLINK+="hri_vsc", MODE="666"
+
