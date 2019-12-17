@@ -4,7 +4,21 @@ colcon build --packages-select hri_c_driver hri_safety_sense_srvs hri_safety_sen
 . install/setup.bash
 ```
 
-# To read from joystick, modify permissions to port:
+# To read from joystick, set up the port:
+
+One way is to set up the udev rules for the device.
+This automatically detects the port that the device is connected to, and
+creates a symbolic link at `/dev/hri_vsc`.
+```
+sudo cp cfg/hri_vsc_udev.rules /etc/udev/rules.d/hri_vsc_udev.rules
+sudo udevadm control --reload-rules
+```
+Then unplug and replug in the USB, or run this:
+```
+sudo udevadm trigger
+```
+
+A second way is to figure out the port manually, and modify permissions to port:
 ```
 sudo chmod 666 <port>
 ```
@@ -26,6 +40,8 @@ ros2 launch hri_safety_sense hri_joystick_node_launch.py
 `serial_speed`: Serial port speed, `115200` by default
 `set_priority`: Set priority, `false` by default
 `frame_id`: Frame ID, `/srcs` for Safe Remote Control System by default
+
+These can be manually changed in `cfg/params.yaml`.
 
 # ROS 2 topics:
 
@@ -53,4 +69,15 @@ Left down, Left right, Left up, Left left, Right down, Right right, Right up, Ri
 
 # Troubleshoot
 
-Joystick goes to sleep automatically after some time. After turning it back on, press button 1 as indicated on the joystick screen to go into remote mode. Then values will show on `/joy` topic.
+Joystick goes to sleep automatically after some time. After turning it back on,
+press button 1 as indicated on the joystick screen to go into remote mode.
+Then values will show on `/joy` topic.
+
+If you get an error about serial port I/O error or cannot open serial port,
+check that the port name is correct.
+After USB connection, if the SRC is powered on, and the E-stop is not down, the
+VSC light should flash green.
+If VSC is flashing red under these conditions, wait a minute or two after
+plugging in the USB for the VSC to be ready. Before it is ready, the device ID
+might be 2a99:b003, as opposed to the expected 2a99:d002. The udev rules should
+be set up after the VSC is ready, so that it finds the expected device ID.
