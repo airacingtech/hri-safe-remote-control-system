@@ -185,14 +185,25 @@ int VscProcess::handleHeartbeatMsg(const VscMsgType& recvMsg)
     estopValue.data = msgPtr->EStopStatus;
     estopPub_->publish(estopValue);
 
-    if(msgPtr->EStopStatus > 0) {
+    // Print when E-STOP changes from 0 to 1, and at startup when
+    //   prevEStop_ is not yet initialized (-1).
+    if(msgPtr->EStopStatus > 0 && prevEStop_ <= 0) {
       RCLCPP_WARN(this->get_logger(), "Received ESTOP from the vehicle!!! 0x%x", msgPtr->EStopStatus);
     }
+    // Print when E-STOP changes from 1 to 0, and at startup when
+    //   prevEStop_ is not yet initialized (-1).
+    else if((prevEStop_ == -1 || prevEStop_ == 1) && msgPtr->EStopStatus == 0) {
+      RCLCPP_WARN(this->get_logger(), "ESTOP disabled 0x%x", msgPtr->EStopStatus);
+    }
 
+    prevEStop_ = msgPtr->EStopStatus;
   } else {
-    RCLCPP_WARN(this->get_logger(), "Received heartbeat with invalid message size! Expected: 0x%x, Actual: 0x%x",
+    // TODO(ros2/rclcpp#879) RCLCPP_THROTTLE_WARN() when released
+    THROTTLE(this->get_clock(), std::chrono::seconds(1),
+      RCLCPP_WARN(this->get_logger(),
+      "Received heartbeat with invalid message size! Expected: 0x%x, Actual: 0x%x",
       static_cast<unsigned int>(sizeof(HeartbeatMsgType)),
-      recvMsg.msg.meta.length);
+      recvMsg.msg.meta.length));
     retVal = 1;
   }
 
