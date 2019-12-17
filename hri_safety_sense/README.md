@@ -18,7 +18,7 @@ Then unplug and replug in the USB, or run this:
 sudo udevadm trigger
 ```
 
-A second way is to figure out the port manually, and modify permissions to port:
+A second way is to figure out the port manually, and modify the permissions to the port:
 ```
 sudo chmod 666 <port>
 ```
