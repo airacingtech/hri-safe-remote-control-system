@@ -31,12 +31,17 @@ namespace hri_safety_sense {
    */
   class JoystickHandler final : public MsgHandler {
      public:
-      JoystickHandler(
+      explicit JoystickHandler(
         rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr nodeTopics,
         rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr nodeLogger,
         rclcpp::node_interfaces::NodeClockInterface::SharedPtr nodeClock,
         const std::string &frameId);
-      ~JoystickHandler() override;
+      JoystickHandler(JoystickHandler &&c) = delete;
+      JoystickHandler &operator=(JoystickHandler &&c) = delete;
+      JoystickHandler(const JoystickHandler &c) = delete;
+      JoystickHandler &operator=(const JoystickHandler &c) = delete;
+
+      ~JoystickHandler() override = default;
 
       uint32_t handleNewMsg(const VscMsgType &incomingMsg) override;
 
@@ -54,6 +59,6 @@ namespace hri_safety_sense {
       const float AXIS_MAX = 1023.;
   };
 
-}
+}  // namespace hri_safety_sense
 
 #endif

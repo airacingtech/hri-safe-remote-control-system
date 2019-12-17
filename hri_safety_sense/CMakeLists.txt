@@ -50,6 +50,10 @@ install(DIRECTORY launch cfg
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
+)
+
 rclcpp_components_register_nodes(hri_joystick
   "hri_safety_sense::VscProcess")
 

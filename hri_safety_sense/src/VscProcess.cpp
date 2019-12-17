@@ -171,14 +171,14 @@ void VscProcess::processOneLoop()
   readFromVehicle();
 }
 
-int VscProcess::handleHeartbeatMsg(VscMsgType& recvMsg)
+int VscProcess::handleHeartbeatMsg(const VscMsgType& recvMsg)
 {
   int retVal = 0;
 
   if(recvMsg.msg.meta.length == sizeof(HeartbeatMsgType)) {
     RCLCPP_DEBUG(this->get_logger(), "Received Heartbeat from VSC");
 
-    HeartbeatMsgType *msgPtr = reinterpret_cast<HeartbeatMsgType*>(recvMsg.msg.meta.data);
+    HeartbeatMsgType *msgPtr = reinterpret_cast<HeartbeatMsgType*>(const_cast<uint8_t*>(recvMsg.msg.meta.data));
 
     // Publish E-STOP Values
     std_msgs::msg::UInt32 estopValue;
@@ -245,6 +245,7 @@ void VscProcess::readFromVehicle()
   }
 
 }
-}
+
+}  // namespace hri_safety_sense
 
 RCLCPP_COMPONENTS_REGISTER_NODE(hri_safety_sense::VscProcess)

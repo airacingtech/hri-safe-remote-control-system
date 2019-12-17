@@ -77,7 +77,7 @@ namespace hri_safety_sense {
         const std::shared_ptr<hri_safety_sense_srvs::srv::KeyString::Response> res);
 
       void readFromVehicle();
-      int handleHeartbeatMsg(VscMsgType& recvMsg);
+      int handleHeartbeatMsg(const VscMsgType& recvMsg);
 
       // Local State
       uint32_t myEStopState_;
@@ -98,6 +98,6 @@ namespace hri_safety_sense {
       VscInterfaceType *vscInterface_;
   };
 
-} // namespace
+}  // namespace hri_safety_sense
 
 #endif
