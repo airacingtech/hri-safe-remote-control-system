@@ -69,7 +69,7 @@ Left down, Left right, Left up, Left left, Right down, Right right, Right up, Ri
 
 # Troubleshoot
 
-Joystick goes to sleep automatically after some time. After turning it back on,
+The joystick goes to sleep automatically after some time. After turning it back on,
 press button 1 as indicated on the joystick screen to go into remote mode.
 Then values will show on `/joy` topic.
 
