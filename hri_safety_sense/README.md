@@ -10,7 +10,7 @@ One way is to set up the udev rules for the device.
 This automatically detects the port that the device is connected to, and
 creates a symbolic link at `/dev/hri_vsc`.
 ```
-sudo cp cfg/hri_vsc_udev.rules /etc/udev/rules.d/hri_vsc_udev.rules
+sudo cp cfg/99-hrivsc.rules /etc/udev/rules.d/99-hrivsc.rules
 sudo udevadm control --reload-rules
 ```
 Then unplug and replug in the USB, or run this:
@@ -79,5 +79,6 @@ After USB connection, if the SRC is powered on, and the E-stop is not down, the
 VSC light should flash green.
 If VSC is flashing red under these conditions, wait a minute or two after
 plugging in the USB for the VSC to be ready. Before it is ready, the device ID
-might be 2a99:b003, as opposed to the expected 2a99:d002. The udev rules should
-be set up after the VSC is ready, so that it finds the expected device ID.
+might be 2a99:b003, as opposed to the expected 2a99:d002. The udev rules will
+automatically set up the symbolic name after the VSC is ready, so that it finds
+the expected device ID.
