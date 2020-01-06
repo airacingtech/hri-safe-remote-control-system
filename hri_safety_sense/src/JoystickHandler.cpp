@@ -78,7 +78,10 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
     sendLeftMsg.header.stamp = this->nodeClock_->get_clock()->now();
     sendLeftMsg.header.frame_id = this->frameId_;
 
-    sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftX) / this->AXIS_MAX);
+    // The Left/Right on the HRI is -1023 for fully left and 1023 for fully right.
+    // In order to conform to the standard joystick values, we invert this and
+    // normalize between 1.0 (fully left) and -1.0 (fully right).
+    sendLeftMsg.axes.push_back(-getStickValue(joyMsg->leftX) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftY) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->leftZ) / this->AXIS_MAX);
 
@@ -87,7 +90,8 @@ uint32_t JoystickHandler::handleNewMsg(const VscMsgType &incomingMsg)
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.second));
     sendLeftMsg.buttons.push_back(getButtonValue(joyMsg->leftSwitch.third));
 
-    sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightX) / this->AXIS_MAX);
+    // See above for an explanation of the negative sign.
+    sendLeftMsg.axes.push_back(-getStickValue(joyMsg->rightX) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightY) / this->AXIS_MAX);
     sendLeftMsg.axes.push_back(getStickValue(joyMsg->rightZ) / this->AXIS_MAX);
 
