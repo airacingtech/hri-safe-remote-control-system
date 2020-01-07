@@ -251,8 +251,8 @@ void VscProcess::readFromVehicle()
   if(noDataDuration > rclcpp::Duration(0, 250000000)) {
     // TODO(ros2/rclcpp#879) RCLCPP_THROTTLE_WARN() when released
     THROTTLE(this->get_clock(), std::chrono::nanoseconds(500000000),
-      RCLCPP_WARN(this->get_logger(), "No Data Received in %g.%09i seconds",
-      noDataDuration.seconds(), noDataDuration.nanoseconds()));
+      RCLCPP_WARN(this->get_logger(), "No Data Received in %g seconds",
+      noDataDuration.seconds()));
   }
 
 }
