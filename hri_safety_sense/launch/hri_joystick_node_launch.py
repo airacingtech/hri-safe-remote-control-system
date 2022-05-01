@@ -15,6 +15,6 @@ def generate_launch_description():
       package="hri_safety_sense",
       executable="hri_joystick_node",
       name="hri_joystick_node",
-      arguments=[default_params_yaml],
+      parameters=[default_params_yaml],
     ),
   ])
